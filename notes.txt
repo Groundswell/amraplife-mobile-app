@@ -1,0 +1,42 @@
+Notes:
+
+- finish manual result entry (or random observation)
+- ability to add sub value per segment (e.g. in today's 9/26 2120 wod)
+
+- sync offline & online results?
+
+- manual advance to next segment (rest for time?)
+   -- with countin?
+
+- max rep is a bit clunky as amrap since based on principle of rounds
+
+- add %max calculator
+- add 3rm, 2rm, 1rm equivalence calc
+- community pic on homescreen
+- take & post pic in app? 
+
+
+
+-------------------------------------------
+
+- move screen up when editing to ensure field is visible (done)
+- add label to keypad display (done)
+- finish quick manual workout(s) (done)
+- finish results show (done)
+- run everything as segment (done)
+- aadd accumulator timer (done)
+-- fix results table (done)
+-- add notes & rx to results (done)
+-- update font size in segment display? (done-ish?)
+--   add active segment & next segment display
+-- add an accumulated time mode (done)
+- convert all time to secs (float)
+-- add strength training mode (collect weight used on workout summary) (done)
+
+- implement screen history stack for android backbuton
+- refactor result table: mirror json & server resp
+
+
+ -- add a small end-workout button -- user may not want to micro-manage rounds
+  -- put in menu?
+
