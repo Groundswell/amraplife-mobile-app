@@ -239,55 +239,6 @@ function scene:show( event )
 		device.fill = { 1, 0, 1 }
 		device.anchorX, device.anchorY = 0.5, 0.5
 
-		
-		local function frame( e )
-			local newYDot = display.newCircle( group, ui.accelYdot.x, ui.accelYdot.y, 1 )
-			newYDot.fill = Theme.colors.green
-
-			table.insert( ui.accelYdots, 1, newYDot )
-
-			-- limit the length of the 'trail' to 500 dots
-			if #ui.accelYdots > 500 then 
-				table.remove( ui.accelYdots )
-			end
-
-			for i=1, #ui.accelYdots do
-				ui.accelYdots[i].x = ui.accelYdots[i].x - 1
-				ui.accelYdots[i].alpha = ui.accelYdots[i].alpha * 0.99
-			end
-
-
-			local newXDot = display.newCircle( group, ui.accelXdot.x, ui.accelXdot.y, 1 )
-			newXDot.fill = Theme.colors.red
-
-			table.insert( ui.accelXdots, 1, newXDot )
-
-			if #ui.accelXdots > 500 then 
-				table.remove( ui.accelXdots )
-			end
-
-			for i=1, #ui.accelXdots do
-				ui.accelXdots[i].y = ui.accelXdots[i].y - 1
-				ui.accelXdots[i].alpha = ui.accelXdots[i].alpha * 0.99
-			end
-
-
-			local newZDot = display.newCircle( group, ui.accelZdot.x, ui.accelZdot.y, 1 )
-			newZDot.fill = Theme.colors.blue
-
-			table.insert( ui.accelZdots, 1, newZDot )
-
-			if #ui.accelZdots > 500 then 
-				table.remove( ui.accelZdots )
-			end
-
-			for i=1, #ui.accelZdots do
-				ui.accelZdots[i].y = ui.accelZdots[i].y - 1
-				ui.accelZdots[i].x = ui.accelZdots[i].x - 1
-				ui.accelZdots[i].alpha = ui.accelZdots[i].alpha * 0.99
-			end
-
-		end
 
 		local function onGyro( event )
 			ui.gyroX.text = string.format( "%1.3f", event.xRotation*(180/math.pi) )
@@ -364,13 +315,8 @@ function scene:show( event )
 			end
 		end
 
-
-
-
 		Runtime:addEventListener ("accelerometer", onAccelerate)
 		Runtime:addEventListener ("gyroscope", onGyro)
-
-		Runtime:addEventListener ("enterFrame", frame)
 
 	
 
@@ -383,8 +329,8 @@ function scene:hide( event )
 
 	if event.phase == "will" then
 		system.setAccelerometerInterval( 10 )
-		Runtime:removeEventListener ("accelerometer")
-		Runtime:removeEventListener ("gyroscope")
+		Runtime:removeEventListener("accelerometer")
+		Runtime:removeEventListener("gyroscope")
 
 		physics.stop()
 
