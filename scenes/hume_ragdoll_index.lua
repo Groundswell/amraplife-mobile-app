@@ -31,6 +31,8 @@ local ui = {}
 
 
 
+
+
 -- Called when the scene's view does not exist:
 function scene:create( event )
 	local group = self.view
@@ -61,71 +63,71 @@ function scene:show( event )
 		end
 
 
-		ui.gyroXLabel = display.newText( group, "gyro x:", 10, 90, 'Lato', 12 )
+		ui.gyroXLabel = display.newText( group, "gyro x:", 10, 100, 'Lato', 12 )
 		ui.gyroXLabel.anchorX = 0
 		ui.gyroXLabel.fill = Theme.colors.red
-		ui.gyroYLabel = display.newText( group, "gyro y:", 10, 110, 'Lato', 12 )
+		ui.gyroYLabel = display.newText( group, "gyro y:", 10, 120, 'Lato', 12 )
 		ui.gyroYLabel.anchorX = 0
 		ui.gyroYLabel.fill = Theme.colors.green
-		ui.gyroZLabel = display.newText( group, "gyro z:", 10, 130, 'Lato', 12 )
+		ui.gyroZLabel = display.newText( group, "gyro z:", 10, 140, 'Lato', 12 )
 		ui.gyroZLabel.anchorX = 0
 		ui.gyroZLabel.fill = Theme.colors.blue
 
-		ui.gyroX = display.newText( group, "0", 60, 90, 'Lato', 12 )
+		ui.gyroX = display.newText( group, "0", 60, 100, 'Lato', 12 )
 		ui.gyroX.anchorX = 0
 		ui.gyroX.fill = Theme.colors.red
-		ui.gyroY = display.newText( group, "0", 60, 110, 'Lato', 12 )
+		ui.gyroY = display.newText( group, "0", 60, 120, 'Lato', 12 )
 		ui.gyroY.anchorX = 0
 		ui.gyroY.fill = Theme.colors.green
-		ui.gyroZ = display.newText( group, "0", 60, 130, 'Lato', 12 )
+		ui.gyroZ = display.newText( group, "0", 60, 140, 'Lato', 12 )
 		ui.gyroZ.anchorX = 0
 		ui.gyroZ.fill = Theme.colors.blue
 
-		ui.accelXLabel = display.newText( group, "accel x:", centerX-40, 90, 'Lato', 12 )
+		ui.accelXLabel = display.newText( group, "accel x:", centerX-40, 100, 'Lato', 12 )
 		ui.accelXLabel.anchorX = 0
 		ui.accelXLabel.fill = Theme.colors.red
-		ui.accelYLabel = display.newText( group, "accel y:", centerX-40, 110, 'Lato', 12 )
+		ui.accelYLabel = display.newText( group, "accel y:", centerX-40, 120, 'Lato', 12 )
 		ui.accelYLabel.anchorX = 0
 		ui.accelYLabel.fill = Theme.colors.green
-		ui.accelZLabel = display.newText( group, "accel z:", centerX-40, 130, 'Lato', 12 )
+		ui.accelZLabel = display.newText( group, "accel z:", centerX-40, 140, 'Lato', 12 )
 		ui.accelZLabel.anchorX = 0
 		ui.accelZLabel.fill = Theme.colors.blue
 
-		ui.accelX = display.newText( group, "0", centerX+10, 90, 'Lato', 12 )
+		ui.accelX = display.newText( group, "0", centerX+10, 100, 'Lato', 12 )
 		ui.accelX.anchorX = 0
 		ui.accelX.fill = Theme.colors.red
-		ui.accelY = display.newText( group, "0", centerX+10, 110, 'Lato', 12 )
+		ui.accelY = display.newText( group, "0", centerX+10, 120, 'Lato', 12 )
 		ui.accelY.anchorX = 0
 		ui.accelY.fill = Theme.colors.green
-		ui.accelZ = display.newText( group, "0", centerX+10, 130, 'Lato', 12 )
+		ui.accelZ = display.newText( group, "0", centerX+10, 140, 'Lato', 12 )
 		ui.accelZ.anchorX = 0
 		ui.accelZ.fill = Theme.colors.blue
 
-		ui.instantXLabel = display.newText( group, "instant x:", centerX+90, 90, 'Lato', 12 )
+		ui.instantXLabel = display.newText( group, "instant x:", centerX+90, 100, 'Lato', 12 )
 		ui.instantXLabel.anchorX = 0
 		ui.instantXLabel.fill = Theme.colors.red
-		ui.instantYLabel = display.newText( group, "instant y:", centerX+90, 110, 'Lato', 12 )
+		ui.instantYLabel = display.newText( group, "instant y:", centerX+90, 120, 'Lato', 12 )
 		ui.instantYLabel.anchorX = 0
 		ui.instantYLabel.fill = Theme.colors.green
-		ui.instantZLabel = display.newText( group, "instant z:", centerX+90, 130, 'Lato', 12 )
+		ui.instantZLabel = display.newText( group, "instant z:", centerX+90, 140, 'Lato', 12 )
 		ui.instantZLabel.anchorX = 0
 		ui.instantZLabel.fill = Theme.colors.blue
 
-		ui.instantX = display.newText( group, "0", centerX+150, 90, 'Lato', 12 )
+		ui.instantX = display.newText( group, "0", centerX+150, 100, 'Lato', 12 )
 		ui.instantX.anchorX = 0
 		ui.instantX.fill = Theme.colors.red
-		ui.instantY = display.newText( group, "0", centerX+150, 110, 'Lato', 12 )
+		ui.instantY = display.newText( group, "0", centerX+150, 120, 'Lato', 12 )
 		ui.instantY.anchorX = 0
 		ui.instantY.fill = Theme.colors.green
-		ui.instantZ = display.newText( group, "0", centerX+150, 130, 'Lato', 12 )
+		ui.instantZ = display.newText( group, "0", centerX+150, 140, 'Lato', 12 )
 		ui.instantZ.anchorX = 0
 		ui.instantZ.fill = Theme.colors.blue
 
 
-		ui.accelGraphBox = display.newRect( group, centerX, screenHeight*0.4, screenWidth-20, screenHeight*.3333 )
-		ui.accelGraphBox.fill = { 0, 0, 0, 0 }
-		ui.accelGraphBox.strokeWidth = 1
-		ui.accelGraphBox:setStrokeColor( 1, 1, 1, 1 )
+		local accelGraphBox = display.newRect( group, centerX, 280, screenWidth-20, 225 )
+		accelGraphBox.fill = { 0, 0, 0, 0 }
+		accelGraphBox.strokeWidth = 1
+		accelGraphBox:setStrokeColor( 1, 1, 1, 1 )
 
 		ui.accelXdots = {}
 		ui.accelYdots = {}
@@ -141,86 +143,101 @@ function scene:show( event )
 		ui.accelYdot = display.newCircle( group, centerX, centerY-40, 3 )
 		ui.accelYdot.fill = Theme.colors.green
 
-	
-
-		ui.deviceGraphBox = display.newRect( group, centerX, screenHeight*0.75, screenWidth-20, screenHeight*.3333 )
-		ui.deviceGraphBox.fill = { 0, 0, 0, 0 }
-		ui.deviceGraphBox.strokeWidth = 1
-		ui.deviceGraphBox:setStrokeColor( 1, 1, 1, 1 )
-
-
-
-		local deviceGroup = display.newGroup()
-		group:insert( deviceGroup )
-
-		deviceGroup.anchorChildren = true
-
-		ui.gravityFrameIndicator = display.newRect( deviceGroup, centerX, screenHeight*0.75, 1, 30 )
-		ui.gravityFrameIndicator.anchorX, ui.gravityFrameIndicator.anchorY = 0.5, 1
-		ui.gravityFrameIndicator.fill = Theme.colors.blue
-		ui.gravityFrameIndicator:setStrokeColor( unpack( Theme.colors.blue) )
-
-		ui.gravityFrame = display.newCircle( deviceGroup, centerX, screenHeight*0.75, 20 )
-		ui.gravityFrame.fill = Theme.colors.coal
-		ui.gravityFrame.strokeWidth = 1
-		ui.gravityFrame:setStrokeColor( unpack( Theme.colors.blue) )
-
-
-		ui.deviceIndicator = display.newLine( deviceGroup, centerX, screenHeight*0.75, centerX, screenHeight*0.75 + 18 )
-		ui.deviceIndicator:setStrokeColor( 1, 0, 1 )
-		ui.deviceIndicator.anchorSegments = true
-		ui.deviceIndicator.anchorX, ui.deviceIndicator.anchorY = 0.5, 1
-
-		ui.device = display.newRoundedRect( deviceGroup, centerX, screenHeight*0.75, 8, 16, 4 )
-		ui.device.fill = { 1, 0, 1 }
-		ui.device.anchorX, ui.device.anchorY = 0.5, 0.5
-
 		
 
 
-
-		-- lets test physics
+		-- lets test a ragdoll
 
 		physics.start()
 		
 		--physics.setDrawMode( "hybrid" )
 		
-		physics.setGravity( 0, 0 )
+		physics.setGravity( 0, 0.5 )
 		physics.pause()
 
-		local dot = display.newCircle( centerX, screenHeight*0.75, 8 )
-		physics.addBody( dot, "dynamic", { density=1, friction=0.9, bounce=0.2, radius=4 } )
-		dot.fill = { 1, 1, 1, 0.25 }
+		local ground = display.newRect( group, centerX, screenHeight-10, screenWidth, 10 )
+		ground.fill = Theme.colors.dkGreen
+		physics.addBody( ground, "static", { bounce=0.2, friction=0.99} )
 
-		dot.linearDamping = 2
+		local ceiling = display.newRect( group, centerX, screenHeight-280, screenWidth, 1 )
+		ceiling.fill = { 0, 0, 0, 0 }
+		physics.addBody( ceiling, "static", { bounce=0.2, friction=0.99} )
 
-		deviceGroup.x, deviceGroup.y = dot.x, dot.y
+		local lWall= display.newRect( group, -2, screenHeight-100, 1, 250 )
+		lWall.fill = Theme.colors.dkGreen
+		physics.addBody( lWall, "static", { bounce=0.2, friction=0.99} )
+
+		local rWall= display.newRect( group, screenWidth+2, screenHeight-100, 1, 250 )
+		rWall.fill = Theme.colors.dkGreen
+		physics.addBody( rWall, "static", { bounce=0.2, friction=0.99} )
+
+		
 
 
+
+		local head = display.newCircle( group, centerX+ 5, screenHeight-198, 16 )
+		head.fill = Theme.colors.yellow
+		physics.addBody( head, "dynamic", {density=0.01, friction=0.9, bounce=0.2, radius=8} )
+
+		local torso = display.newRect( group, centerX, screenHeight-145, 10, 68 )
+		torso.fill = Theme.colors.blue
+		physics.addBody( torso, "dynamic", {density=1, friction=0.9, bounce=0.2} )
+		
+		local neckJoint = physics.newJoint( "pivot", head, torso, head.x, head.y, torso.x, torso.y-30 )
+
+		local arm = display.newRect( group, centerX+30, screenHeight-170, 62, 10 )
+		arm.fill = Theme.colors.yellow
+		physics.addBody( arm, "dynamic", {density=1, friction=0.9, bounce=0.2} )
+
+		local shoulderJoint = physics.newJoint( "pivot", torso, arm, torso.x+5, torso.y-20, arm.x-32, arm.y )
+		--shoulderJoint
+
+
+		local femur = display.newRect( group, centerX, screenHeight-90, 10, 50 )
+		femur.fill = Theme.colors.red
+		physics.addBody( femur, "dynamic", {density=1, friction=0.9, bounce=0.2} )
+
+
+		local hipJoint = physics.newJoint( "pivot", torso, femur, torso.x, torso.y+34, femur.x, femur.y-25 )
+		hipJoint.isLimitEnabled = true
+		hipJoint:setRotationLimits( -140, 15 )
+
+
+		local tibia = display.newRect( group, centerX, screenHeight-45, 10, 42 )
+		tibia.fill = Theme.colors.yellow
+		physics.addBody( tibia, "dynamic", {density=1, friction=0.9, bounce=0.2} )
+
+		local kneeJoint = physics.newJoint( "pivot", femur, tibia, femur.x, femur.y+25, tibia.x, tibia.y-21 )
+		kneeJoint.isLimitEnabled = true
+		kneeJoint:setRotationLimits( -15, 150 )
+
+		local foot = display.newRect( group, centerX+8, screenHeight-20, 35, 8 )
+		foot.fill = Theme.colors.red
+		physics.addBody( foot, "dynamic", {density=20, friction=0.9, bounce=0.1} )
+
+		local ankleJoint = physics.newJoint( "pivot", tibia, foot, tibia.x, tibia.y+21, foot.x, foot.y-5 )
+		ankleJoint.isLimitEnabled = true
+		ankleJoint:setRotationLimits( -25, 60 )
+		
 		physics.start()
 
-		local function eachFrame( e )
-			
-			-- dot:applyForce( 0, 0.2, dot.x, dot.y )
-			-- dot:applyForce( 0.12, 0, dot.x, dot.y )
-
-			-- if dot.x > screenWidth - 30 then
-			-- 	dot.x = screenWidth - 30
-			-- elseif dot.x < 10 then
-			-- 	dot.x = 10
-			-- end 
-
-			-- if dot.y > screenHeight*0.75+(screenHeight*0.333/2)-20 then
-			-- 	dot.y = screenHeight*0.75+(screenHeight*0.333/2)-20
-			-- elseif dot.y < screenHeight*0.75-(screenHeight*0.333/2)+20 then
-			-- 	dot.y = screenHeight*0.75-(screenHeight*0.333/2)+20
-			-- end 
+		--torso:applyLinearImpulse( -1, -1, torso.x, torso.y+34 )
 
 
-			-- deviceGroup.x, deviceGroup.y = dot.x, dot.y
+		local deviceFrame = display.newCircle( group, centerX + screenWidth*0.333, centerY-40, 30 )
+		deviceFrame.fill = { 0, 0, 0, 0 }
+		deviceFrame.strokeWidth = 1
+		deviceFrame:setStrokeColor( unpack( Theme.colors.blue) )
 
-
-		end
+		local deviceIndicator = display.newLine( group, centerX + screenWidth*0.333, centerY-10, centerX + screenWidth*0.333, centerY-70 )
+		deviceIndicator:setStrokeColor( 1, 0, 1 )
+		deviceIndicator.anchorSegments = true
+		deviceIndicator.anchorX, deviceIndicator.anchorY = 0.5, 0.5
+		deviceIndicator.y = centerY-40
+		
+		local device = display.newRoundedRect( group, centerX + screenWidth*0.333, centerY-40, 10, 20, 4 )
+		device.fill = { 1, 0, 1 }
+		device.anchorX, device.anchorY = 0.5, 0.5
 
 
 		local function onGyro( event )
@@ -228,13 +245,13 @@ function scene:show( event )
 			ui.gyroY.text = string.format( "%1.3f", event.yRotation*(180/math.pi) )
 			ui.gyroZ.text = string.format( "%1.3f", event.zRotation *(180/math.pi))
 
+			device:rotate( event.xRotation*(180/math.pi) )
+			deviceIndicator:rotate( event.xRotation*(180/math.pi) )
+
+
 		end
 
 		local function onAccelerate( event )
-			print( "yInstant is: " .. event.yInstant )
-
-
-
 			ui.accelX.text = string.format( "%1.3f", event.xGravity )
 			ui.accelY.text = string.format( "%1.3f", event.yGravity )
 			ui.accelZ.text = string.format( "%1.3f", event.zGravity )
@@ -242,41 +259,6 @@ function scene:show( event )
 			ui.instantX.text = string.format( "%1.3f", event.xInstant )
 			ui.instantY.text = string.format( "%1.3f", event.yInstant )
 			ui.instantZ.text = string.format( "%1.3f", event.zInstant )
-
-
-			if math.abs( event.xInstant ) > 0.01 then
-				dot:applyForce( event.xInstant*5, 0, dot.x, dot.y )
-			end
-
-			if math.abs( event.yInstant ) > 0.01 then
-				dot:applyForce( 0, event.yInstant*5, dot.x, dot.y )
-			end
-
-
-		--	dot:applyForce( event.xInstant, event.yInstant, dot.x, dot.y )
-
-			
-			if dot.x > screenWidth - 30 then
-				dot.x = screenWidth - 30
-			elseif dot.x < 10 then
-				dot.x = 10
-			end 
-
-			if dot.y > screenHeight*0.75+(screenHeight*0.333/2)-20 then
-				dot.y = screenHeight*0.75+(screenHeight*0.333/2)-20
-			elseif dot.y < screenHeight*0.75-(screenHeight*0.333/2)+20 then
-				dot.y = screenHeight*0.75-(screenHeight*0.333/2)+20
-			end 
-
-
-			--deviceGroup.x, deviceGroup.y = dot.x, dot.y
-
-
-			ui.gravityFrameIndicator.rotation = math.atan2( -event.xGravity, -event.yGravity )*(180/math.pi)
-
-			ui.device.rotation = math.atan2( event.xGravity, -event.yGravity )*(180/math.pi)
-			ui.deviceIndicator.rotation = ui.device.rotation
-
 
 			ui.accelYdot.y = centerY-40 + (event.yInstant*80)
 			
@@ -327,13 +309,14 @@ function scene:show( event )
 				ui.accelZdots[i].alpha = ui.accelZdots[i].alpha * 0.981
 			end
 
+
+			if event.xInstant > 0.01 or event.yInstant > 0.01 then
+				torso:applyLinearImpulse( event.xInstant, event.yInstant, torso.x, torso.y+34 )
+			end
 		end
 
 		Runtime:addEventListener ("accelerometer", onAccelerate)
 		Runtime:addEventListener ("gyroscope", onGyro)
-
-
-		Runtime:addEventListener ("enterFrame", eachFrame)
 
 	
 
@@ -349,7 +332,7 @@ function scene:hide( event )
 		Runtime:removeEventListener("accelerometer")
 		Runtime:removeEventListener("gyroscope")
 
-		--physics.stop()
+		physics.stop()
 
 
 	end
