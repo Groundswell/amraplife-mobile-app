@@ -21,7 +21,9 @@ local FileUtils = require( "utilities.file" )
 
 local Debug = require( 'utilities.debug' )
 
-local physics = require( "physics" )
+local Device = require( "utilities.device" )
+
+local TiledBg = require( 'ui.tiled_bg')
 
 ---------------------------------------------------------------------------------
 -- BEGINNING OF YOUR IMPLEMENTATION
@@ -29,6 +31,18 @@ local physics = require( "physics" )
 
 local ui = {}
 
+local movementData = {}
+local deviceTrail = {}
+
+local xVel, yVel = 0, 0
+
+local isActive = false
+local isCalibrating = false
+
+local xThreshold, yThreshold, zThreshold = 0, 0, 0
+
+
+local frameNum = 0
 
 
 -- Called when the scene's view does not exist:
@@ -43,7 +57,9 @@ function scene:show( event )
 	if event.phase == "will" then
 		Composer.setVariable( 'prevScene', 'scenes.home' )
 
+		-- let's go with 30 per second device resolution at 60fps app speed
 		system.setAccelerometerInterval( 60 )
+
 
 		ui.header = UI:setHeader({
 			parent 	= group,
@@ -55,71 +71,73 @@ function scene:show( event )
 			})
 
 
-		if not( system.hasEventSource("gyroscope")) or not( system.hasEventSource("accelerometer") ) then
+		if not( system.hasEventSource("accelerometer") ) then
 			local msg = display.newText( group, "Motion events not supported on this device", centerX, centerY, native.systemFontBold, 16 )
 			msg:setFillColor( 1, 0, 0 )
 		end
 
 
-		ui.gyroXLabel = display.newText( group, "gyro x:", 10, 90, 'Lato', 12 )
-		ui.gyroXLabel.anchorX = 0
-		ui.gyroXLabel.fill = Theme.colors.red
-		ui.gyroYLabel = display.newText( group, "gyro y:", 10, 110, 'Lato', 12 )
-		ui.gyroYLabel.anchorX = 0
-		ui.gyroYLabel.fill = Theme.colors.green
-		ui.gyroZLabel = display.newText( group, "gyro z:", 10, 130, 'Lato', 12 )
-		ui.gyroZLabel.anchorX = 0
-		ui.gyroZLabel.fill = Theme.colors.blue
+		ui.timeLabel = display.newText( group, "Time:", 10, 90, 'Lato', 12 )
+		ui.timeLabel.anchorX = 0
+		ui.timeLabel.fill = Theme.colors.red
 
-		ui.gyroX = display.newText( group, "0", 60, 90, 'Lato', 12 )
-		ui.gyroX.anchorX = 0
-		ui.gyroX.fill = Theme.colors.red
-		ui.gyroY = display.newText( group, "0", 60, 110, 'Lato', 12 )
-		ui.gyroY.anchorX = 0
-		ui.gyroY.fill = Theme.colors.green
-		ui.gyroZ = display.newText( group, "0", 60, 130, 'Lato', 12 )
-		ui.gyroZ.anchorX = 0
-		ui.gyroZ.fill = Theme.colors.blue
+		-- ui.gyroYLabel = display.newText( group, "x Vel:", 10, 110, 'Lato', 12 )
+		-- ui.gyroYLabel.anchorX = 0
+		-- ui.gyroYLabel.fill = Theme.colors.green
+		-- ui.gyroZLabel = display.newText( group, "y Vel:", 10, 130, 'Lato', 12 )
+		-- ui.gyroZLabel.anchorX = 0
+		-- ui.gyroZLabel.fill = Theme.colors.blue
 
-		ui.accelXLabel = display.newText( group, "accel x:", centerX-40, 90, 'Lato', 12 )
+		ui.timeDisp = display.newText( group, "0", 60, 90, 'Lato', 12 )
+		ui.timeDisp.anchorX = 0
+		ui.timeDisp.fill = Theme.colors.red
+
+		-- ui.gyroY = display.newText( group, "0", 60, 110, 'Lato', 12 )
+		-- ui.gyroY.anchorX = 0
+		-- ui.gyroY.fill = Theme.colors.green
+		-- ui.gyroZ = display.newText( group, "0", 60, 130, 'Lato', 12 )
+		-- ui.gyroZ.anchorX = 0
+		-- ui.gyroZ.fill = Theme.colors.blue
+
+		ui.accelXLabel = display.newText( group, "X Accel:", centerX-40, 90, 'Lato', 12 )
 		ui.accelXLabel.anchorX = 0
 		ui.accelXLabel.fill = Theme.colors.red
-		ui.accelYLabel = display.newText( group, "accel y:", centerX-40, 110, 'Lato', 12 )
+		ui.accelYLabel = display.newText( group, "Y Accel:", centerX-40, 110, 'Lato', 12 )
 		ui.accelYLabel.anchorX = 0
 		ui.accelYLabel.fill = Theme.colors.green
-		ui.accelZLabel = display.newText( group, "accel z:", centerX-40, 130, 'Lato', 12 )
+		ui.accelZLabel = display.newText( group, "Z Accel:", centerX-40, 130, 'Lato', 12 )
 		ui.accelZLabel.anchorX = 0
 		ui.accelZLabel.fill = Theme.colors.blue
 
-		ui.accelX = display.newText( group, "0", centerX+10, 90, 'Lato', 12 )
-		ui.accelX.anchorX = 0
-		ui.accelX.fill = Theme.colors.red
-		ui.accelY = display.newText( group, "0", centerX+10, 110, 'Lato', 12 )
-		ui.accelY.anchorX = 0
-		ui.accelY.fill = Theme.colors.green
-		ui.accelZ = display.newText( group, "0", centerX+10, 130, 'Lato', 12 )
-		ui.accelZ.anchorX = 0
-		ui.accelZ.fill = Theme.colors.blue
+		ui.accelXDisp = display.newText( group, "0", centerX+10, 90, 'Lato', 12 )
+		ui.accelXDisp.anchorX = 0
+		ui.accelXDisp.fill = Theme.colors.red
+		ui.accelYDisp = display.newText( group, "0", centerX+10, 110, 'Lato', 12 )
+		ui.accelYDisp.anchorX = 0
+		ui.accelYDisp.fill = Theme.colors.green
+		ui.accelZDisp = display.newText( group, "0", centerX+10, 130, 'Lato', 12 )
+		ui.accelZDisp.anchorX = 0
+		ui.accelZDisp.fill = Theme.colors.blue
 
-		ui.instantXLabel = display.newText( group, "instant x:", centerX+90, 90, 'Lato', 12 )
-		ui.instantXLabel.anchorX = 0
-		ui.instantXLabel.fill = Theme.colors.red
-		ui.instantYLabel = display.newText( group, "instant y:", centerX+90, 110, 'Lato', 12 )
-		ui.instantYLabel.anchorX = 0
-		ui.instantYLabel.fill = Theme.colors.green
-		ui.instantZLabel = display.newText( group, "instant z:", centerX+90, 130, 'Lato', 12 )
-		ui.instantZLabel.anchorX = 0
-		ui.instantZLabel.fill = Theme.colors.blue
+		ui.deltaXLabel = display.newText( group, "Delta X:", centerX+90, 90, 'Lato', 12 )
+		ui.deltaXLabel.anchorX = 0
+		ui.deltaXLabel.fill = Theme.colors.red
+		ui.deltaYLabel = display.newText( group, "Delta Y:", centerX+90, 110, 'Lato', 12 )
+		ui.deltaYLabel.anchorX = 0
+		ui.deltaYLabel.fill = Theme.colors.green
+		ui.deltaZLabel = display.newText( group, "Delta Z:", centerX+90, 130, 'Lato', 12 )
+		ui.deltaZLabel.anchorX = 0
+		ui.deltaZLabel.fill = Theme.colors.blue
 
-		ui.instantX = display.newText( group, "0", centerX+150, 90, 'Lato', 12 )
-		ui.instantX.anchorX = 0
-		ui.instantX.fill = Theme.colors.red
-		ui.instantY = display.newText( group, "0", centerX+150, 110, 'Lato', 12 )
-		ui.instantY.anchorX = 0
-		ui.instantY.fill = Theme.colors.green
-		ui.instantZ = display.newText( group, "0", centerX+150, 130, 'Lato', 12 )
-		ui.instantZ.anchorX = 0
-		ui.instantZ.fill = Theme.colors.blue
+		ui.deltaXDisp = display.newText( group, "0", centerX+150, 90, 'Lato', 12 )
+		ui.deltaXDisp.anchorX = 0
+		ui.deltaXDisp.fill = Theme.colors.red
+		ui.deltaYDisp = display.newText( group, "0", centerX+150, 110, 'Lato', 12 )
+		ui.deltaYDisp.anchorX = 0
+		ui.deltaYDisp.fill = Theme.colors.green
+		ui.deltaZDisp = display.newText( group, "0", centerX+150, 130, 'Lato', 12 )
+		ui.deltaZDisp.anchorX = 0
+		ui.deltaZDisp.fill = Theme.colors.blue
 
 
 		ui.accelGraphBox = display.newRect( group, centerX, screenHeight*0.4, screenWidth-20, screenHeight*.3333 )
@@ -127,27 +145,49 @@ function scene:show( event )
 		ui.accelGraphBox.strokeWidth = 1
 		ui.accelGraphBox:setStrokeColor( 1, 1, 1, 1 )
 
-		ui.accelXdots = {}
-		ui.accelYdots = {}
-		ui.accelZdots = {}
-
 		
-		ui.accelZdot = display.newCircle( group, centerX, centerY-40, 3 )
-		ui.accelZdot.fill = Theme.colors.blue
+		ui.accelDots = {}
+		ui.accelDots.xAxis = {}
+		ui.accelDots.yAxis = {}
+		ui.accelDots.zAxis = {}
 
-		ui.accelXdot = display.newCircle( group, centerX, centerY-40, 3 )
-		ui.accelXdot.fill = Theme.colors.red
-
-		ui.accelYdot = display.newCircle( group, centerX, centerY-40, 3 )
-		ui.accelYdot.fill = Theme.colors.green
 
 	
 
-		ui.deviceGraphBox = display.newRect( group, centerX, screenHeight*0.75, screenWidth-20, screenHeight*.3333 )
-		ui.deviceGraphBox.fill = { 0, 0, 0, 0 }
-		ui.deviceGraphBox.strokeWidth = 1
-		ui.deviceGraphBox:setStrokeColor( 1, 1, 1, 1 )
+		local deviceContainer = display.newContainer( screenWidth-20, screenHeight*.3333 )
+		deviceContainer:translate( centerX, screenHeight*0.75 )
 
+		--deviceContainer.anchorChildren = false
+		--deviceContainer.anchorChildren = false
+
+
+		local testBg = TiledBg:new({
+			debug 				= true,
+			group 				= deviceContainer,
+			image 				= 'assets/images/bgs/grid-bg.jpg',
+			tile_width 			= 2560,
+			tile_height 		= 1600,
+			sheet_width 		= 5000,
+			sheet_height		= 5000
+
+		})
+		testBg.x = -testBg.contentWidth/2
+		testBg.y = -testBg.contentHeight/2
+
+		testBg:toBack()
+		
+
+		-- local deviceBg1 = display.newImage( deviceContainer, "assets/images/bgs/grid-bg.jpg" )
+		-- deviceBg1.x, deviceBg1.y = 0, 0
+		
+		-- local deviceBg2 = display.newImage( deviceContainer, "assets/images/bgs/grid-bg.jpg" )
+		-- deviceBg2.x, deviceBg2.y = deviceBg1.width, 0
+
+		-- local deviceBg3 = display.newImage( deviceContainer, "assets/images/bgs/grid-bg.jpg" )
+		-- deviceBg3.x, deviceBg3.y = 0, deviceBg2.height
+
+
+		deviceContainer:toBack()
 
 
 		local deviceGroup = display.newGroup()
@@ -157,13 +197,13 @@ function scene:show( event )
 
 		ui.gravityFrameIndicator = display.newRect( deviceGroup, centerX, screenHeight*0.75, 1, 30 )
 		ui.gravityFrameIndicator.anchorX, ui.gravityFrameIndicator.anchorY = 0.5, 1
-		ui.gravityFrameIndicator.fill = Theme.colors.blue
-		ui.gravityFrameIndicator:setStrokeColor( unpack( Theme.colors.blue) )
+		ui.gravityFrameIndicator.fill = Theme.colors.whiteGrey
+		ui.gravityFrameIndicator:setStrokeColor( unpack( Theme.colors.whiteGrey ) )
 
 		ui.gravityFrame = display.newCircle( deviceGroup, centerX, screenHeight*0.75, 20 )
-		ui.gravityFrame.fill = Theme.colors.coal
+		ui.gravityFrame.fill = { 0, 0, 0, 0 }
 		ui.gravityFrame.strokeWidth = 1
-		ui.gravityFrame:setStrokeColor( unpack( Theme.colors.blue) )
+		ui.gravityFrame:setStrokeColor( unpack( Theme.colors.whiteGrey ) )
 
 
 		ui.deviceIndicator = display.newLine( deviceGroup, centerX, screenHeight*0.75, centerX, screenHeight*0.75 + 18 )
@@ -177,165 +217,264 @@ function scene:show( event )
 
 		
 
+		deviceGroup.x, deviceGroup.y = centerX, screenHeight*0.75
 
 
-		-- lets test physics
+		local function stopCalibrating()
+			isCalibrating = false
 
-		physics.start()
-		
-		--physics.setDrawMode( "hybrid" )
-		
-		physics.setGravity( 0, 0 )
-		physics.pause()
+			deviceGroup.x = centerX 
+			deviceGroup.y = screenHeight*0.75
 
-		local dot = display.newCircle( centerX, screenHeight*0.75, 8 )
-		physics.addBody( dot, "dynamic", { density=1, friction=0.9, bounce=0.2, radius=4 } )
-		dot.fill = { 1, 1, 1, 0.25 }
+			ui.deviceIndicator.rotation = 0
 
-		dot.linearDamping = 2
+			ui.calibrationLabel.text = "xThresh: " .. xThreshold .. "\nyThresh: " .. yThreshold
+		end
 
-		deviceGroup.x, deviceGroup.y = dot.x, dot.y
+		local function stopStart()
+			isActive = not( isActive )
 
+			if isActive then
+				-- clear movement data
+				for k in pairs( movementData ) do
+					movementData[k] = nil
+				end
+				ui.stopStartBtn.label.text = 'Stop'
+			else
+				deviceGroup.x, deviceGroup.y = centerX, screenHeight*0.75
+				xVel, yVel = 0, 0
+				ui.stopStartBtn.label.text = 'Start'
+			end
+			
+		end
 
-		physics.start()
+		ui.stopStartBtn = Btn:new({
+				group 			= group,
+				label			= "Start",
+				x				= 60,
+				y				= 180,
+				width			= 80,
+				height			= 40,
+				fontSize		= 12,
+				onRelease 		= stopStart
+			})
+
+		ui.calibrationBtn = Btn:new({
+				group 			= group,
+				label			= "Calibrate",
+				x				= screenWidth-60,
+				y				= 180,
+				width			= 80,
+				height			= 40,
+				fontSize		= 12,
+				onRelease 		= function() xThreshold=0; yThreshold=0; isCalibrating=true; ui.calibrationLabel.text = 'Calibrating - Hold Still!'; timer.performWithDelay( 30, stopCalibrating );  end
+			})
+
+		ui.calibrationLabel = display.newText( group, "xThresh: " ..xThreshold ..  "\nyThresh: " .. yThreshold, screenWidth-60, 220, 'Lato', 12 )
+
 
 		local function eachFrame( e )
-			
-			-- dot:applyForce( 0, 0.2, dot.x, dot.y )
-			-- dot:applyForce( 0.12, 0, dot.x, dot.y )
 
-			-- if dot.x > screenWidth - 30 then
-			-- 	dot.x = screenWidth - 30
-			-- elseif dot.x < 10 then
-			-- 	dot.x = 10
-			-- end 
+			if not( isActive ) then return end
 
-			-- if dot.y > screenHeight*0.75+(screenHeight*0.333/2)-20 then
-			-- 	dot.y = screenHeight*0.75+(screenHeight*0.333/2)-20
-			-- elseif dot.y < screenHeight*0.75-(screenHeight*0.333/2)+20 then
-			-- 	dot.y = screenHeight*0.75-(screenHeight*0.333/2)+20
-			-- end 
+			frameNum = frameNum + 1
 
+			if Device.isSimulator then
+				table.insert( movementData, { time=system.getTimer(), xAccel = math.random()/100, yAccel=math.random()/100, zAccel=math.random()/100 } )
 
-			-- deviceGroup.x, deviceGroup.y = dot.x, dot.y
+				print( "Frame: " .. frameNum )
 
-
-		end
-
-
-		local function onGyro( event )
-			ui.gyroX.text = string.format( "%1.3f", event.xRotation*(180/math.pi) )
-			ui.gyroY.text = string.format( "%1.3f", event.yRotation*(180/math.pi) )
-			ui.gyroZ.text = string.format( "%1.3f", event.zRotation *(180/math.pi))
-
-		end
-
-		local function onAccelerate( event )
-			print( "yInstant is: " .. event.yInstant )
-
-
-
-			ui.accelX.text = string.format( "%1.3f", event.xGravity )
-			ui.accelY.text = string.format( "%1.3f", event.yGravity )
-			ui.accelZ.text = string.format( "%1.3f", event.zGravity )
-
-			ui.instantX.text = string.format( "%1.3f", event.xInstant )
-			ui.instantY.text = string.format( "%1.3f", event.yInstant )
-			ui.instantZ.text = string.format( "%1.3f", event.zInstant )
-
-
-			if math.abs( event.xInstant ) > 0.01 then
-				dot:applyForce( event.xInstant*5, 0, dot.x, dot.y )
-			end
-
-			if math.abs( event.yInstant ) > 0.01 then
-				dot:applyForce( 0, event.yInstant*5, dot.x, dot.y )
 			end
 
 
-		--	dot:applyForce( event.xInstant, event.yInstant, dot.x, dot.y )
+			if #movementData > 300 then 
+				-- keep roughly 5 seconds of data. Can cache or post to server
+				print( "Movement Table Full")
+				for k in pairs( movementData ) do
+					movementData[k] = nil
+				end
+			end
 
+
+			if isCalibrating then
+				-- set xThresh, yThresh base on max jitter
+				if movementData[#movementData] then
+					if math.abs( movementData[#movementData].xAccel ) > xThreshold then 
+						xThreshold = math.abs( movementData[#movementData].xAccel )
+					end
+					if math.abs( movementData[#movementData].yAccel ) > yThreshold then 
+						yThreshold = math.abs( movementData[#movementData].yAccel )
+					end
+					if math.abs( movementData[#movementData].zAccel ) > zThreshold then 
+						zThreshold = math.abs( movementData[#movementData].zAccel )
+					end
+				end
+			end
 			
-			if dot.x > screenWidth - 30 then
-				dot.x = screenWidth - 30
-			elseif dot.x < 10 then
-				dot.x = 10
-			end 
 
-			if dot.y > screenHeight*0.75+(screenHeight*0.333/2)-20 then
-				dot.y = screenHeight*0.75+(screenHeight*0.333/2)-20
-			elseif dot.y < screenHeight*0.75-(screenHeight*0.333/2)+20 then
-				dot.y = screenHeight*0.75-(screenHeight*0.333/2)+20
-			end 
+			local lastXAccel = 0
+			local lastYAccel = 0
+			local lastZAccel = 0
+
+			local prevXAccel = 0 
+			local prevYAccel = 0
+			local prevZAccel = 0
+
+			local deltaXAccel = 0 
+			local deltaYAccel = 0
+			local deltaZAccel = 0
+
+			local deltaTime = 0
+
+			if movementData[#movementData] then
+				lastXAccel = movementData[#movementData].xAccel
+				lastYAccel = movementData[#movementData].yAccel
+				lastZAccel = movementData[#movementData].zAccel
+			end
+
+			if movementData[#movementData-1] then
+				prevXAccel = movementData[#movementData-1].xAccel
+				deltaXAccel = ((lastXAccel+prevXAccel)/2) - prevXAccel -- ghetto smoothing: take the average of the last 2 readings
+
+				prevYAccel = movementData[#movementData-1].yAccel
+				deltaYAccel = ((lastYAccel+prevYAccel)/2) - prevYAccel
+
+				prevZAccel = movementData[#movementData-1].zAccel
+				deltaZAccel = ((lastZAccel+prevZAccel)/2) - prevZAccel
+
+				deltaTime = movementData[#movementData].time - movementData[#movementData-1].time
+			end
 
 
-			--deviceGroup.x, deviceGroup.y = dot.x, dot.y
+			-- calculate velocities based on accelerations and deltaTime
+			-- assumes acceleration is "raw" e.g. meters/second, multiply by 9.80665 if g-units
+
+			if math.abs( deltaXAccel ) > xThreshold then 
+				xVel = xVel + deltaXAccel * deltaTime * 0.981 -- meters per second * seconds (deltaTime is in millis)
+			end
+
+			if math.abs( deltaYAccel ) > yThreshold then 
+				yVel = yVel + deltaYAccel * deltaTime * 0.981
+			end
+
+			-- this assumes 1 pixel = 1 meter?
+
+			-- apply velocities
+			-- for now, lets just move the bg, not the device itself
+
+			testBg.x = testBg.x - xVel
+			testBg.y = testBg.y - yVel
+
+			-- move thetrail with the bg
+			for i=1, #deviceTrail do 
+				deviceTrail[i].x = deviceTrail[i].x - xVel
+				deviceTrail[i].y = deviceTrail[i].y - yVel
+			end
 
 
-			ui.gravityFrameIndicator.rotation = math.atan2( -event.xGravity, -event.yGravity )*(180/math.pi)
+			-- rotate the device based on gravity - gyro is useless
 
-			ui.device.rotation = math.atan2( event.xGravity, -event.yGravity )*(180/math.pi)
+			ui.gravityFrameIndicator.rotation = math.atan2( -lastXAccel, -lastYAccel )*(180/math.pi)
+
+			ui.device.rotation = math.atan2( lastXAccel, -lastYAccel )*(180/math.pi)
 			ui.deviceIndicator.rotation = ui.device.rotation
 
+			-- leave a trail
+			if frameNum % 10 == 0 then
 
-			ui.accelYdot.y = centerY-40 + (event.yInstant*80)
+				local trailDot = display.newCircle( deviceContainer, 0, 0, 2 )
+				
+				trailDot:toFront()
+				trailDot.fill = { 1, 0, 1 }
+				table.insert( deviceTrail, trailDot )
+			end
+
+
+
+
+
+
+			-- graph the acceleration vectors
+
+			local dotX = centerX
+			if math.abs( deltaXAccel ) > xThreshold then
+				dotX = centerX + (deltaXAccel*100)
+			end
+			newDot = display.newCircle( group, dotX, centerY-40, 1 )
+			newDot.fill = Theme.colors.red
+
+			table.insert( ui.accelDots.yAxis, 1, newDot)
+
+			for i=1, #ui.accelDots.yAxis do
+				ui.accelDots.yAxis[i].y = ui.accelDots.yAxis[i].y - 1
+				--ui.accelDots.yAxis[i].alpha = ui.accelDots.yAxis[i].alpha * 0.988
+			end
+
+			local dotY = centerY-40
+			if math.abs( deltaYAccel ) > yThreshold then
+				dotY = centerY-40 + (deltaYAccel*100)
+			end
+			newDot = display.newCircle( group, centerX, dotY, 1 )
+			newDot.fill = Theme.colors.green
+
+			table.insert( ui.accelDots.xAxis, 1, newDot)
+
+			for i=1, #ui.accelDots.xAxis do
+				ui.accelDots.xAxis[i].x = ui.accelDots.xAxis[i].x - 1
+			end
+
+
+
+			for i in pairs( ui.accelDots ) do
+				if #ui.accelDots[i] > 200 then
+					ui.accelDots[i][#ui.accelDots[i]]:removeSelf()
+					ui.accelDots[i][#ui.accelDots[i]] = nil
+					table.remove( ui.accelDots[i] )
+				end
+				for k in pairs( ui.accelDots[i] ) do
+					ui.accelDots[i][k].alpha = ui.accelDots[i][k].alpha * 0.991
+				end
+			end
+
+
+
+			if Device.isSimulator then
+
+				print( "Delta time: " .. deltaTime  )
+				print( "DeltaXAccel: " .. deltaXAccel )
+				print( "DeltaYAccel: " .. deltaYAccel )
+				print( "xVel: " .. xVel .. ' meters per second' )
+				print( "yVel: " .. yVel .. ' meters per second' )
+
+			end
+
+			ui.timeDisp.text = string.format( "%1.3f", deltaTime )
+
+			ui.accelXDisp.text = string.format( "%1.3f", lastXAccel )
+			ui.accelYDisp.text = string.format( "%1.3f", lastYAccel )
+			ui.accelZDisp.text = string.format( "%1.3f", lastZAccel )
+
+			ui.deltaXDisp.text = string.format( "%1.3f", deltaXAccel )
+			ui.deltaYDisp.text = string.format( "%1.3f", deltaYAccel )
+			ui.deltaZDisp.text = string.format( "%1.3f", deltaZAccel )
 			
-			local newYDot = display.newCircle( group, ui.accelYdot.x, ui.accelYdot.y, 1 )
-			newYDot.fill = Theme.colors.green
 
-			table.insert( ui.accelYdots, 1, newYDot )
+			
 
-			-- limit the length of the 'trail' to 500 dots
-			if #ui.accelYdots > 500 then 
-				table.remove( ui.accelYdots )
-			end
-
-			for i=1, #ui.accelYdots do
-				ui.accelYdots[i].x = ui.accelYdots[i].x - 1
-				ui.accelYdots[i].alpha = ui.accelYdots[i].alpha * 0.981
-			end
-
-
-			ui.accelXdot.x = centerX + (event.xInstant*80)
-			local newXDot = display.newCircle( group, ui.accelXdot.x, ui.accelXdot.y, 1 )
-			newXDot.fill = Theme.colors.red
-
-			table.insert( ui.accelXdots, 1, newXDot )
-
-			if #ui.accelXdots > 500 then 
-				table.remove( ui.accelXdots )
-			end
-
-			for i=1, #ui.accelXdots do
-				ui.accelXdots[i].y = ui.accelXdots[i].y - 1
-				ui.accelXdots[i].alpha = ui.accelXdots[i].alpha * 0.981
-			end
-
-			ui.accelZdot.x = centerX + (event.zInstant*80)
-			local newZDot = display.newCircle( group, ui.accelZdot.x, ui.accelZdot.y, 1 )
-			newZDot.fill = Theme.colors.blue
-
-			table.insert( ui.accelZdots, 1, newZDot )
-
-			if #ui.accelZdots > 500 then 
-				table.remove( ui.accelZdots )
-			end
-
-			for i=1, #ui.accelZdots do
-				ui.accelZdots[i].y = ui.accelZdots[i].y - 1
-				ui.accelZdots[i].x = ui.accelZdots[i].x - 1
-				ui.accelZdots[i].alpha = ui.accelZdots[i].alpha * 0.981
-			end
 
 		end
 
-		Runtime:addEventListener ("accelerometer", onAccelerate)
-		Runtime:addEventListener ("gyroscope", onGyro)
 
+
+		local function onAccelerate( event )
+			-- keep track of the last 5 seconds of acceleration data
+			table.insert( movementData, { time=system.getTimer(), xAccel=event.xGravity, yAccel=event.yGravity, zAccel=event.zGravity } )
+		end
+
+
+		Runtime:addEventListener ("accelerometer", onAccelerate)
 
 		Runtime:addEventListener ("enterFrame", eachFrame)
-
-	
 
 	end
 	
