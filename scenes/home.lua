@@ -72,9 +72,16 @@ function scene:show( event )
 				fontSize = 14,
 			},
 			{
+				label = 'Hume 2',
+				target 	= 'scenes.hume2_index' ,
+				y 		= 300,
+				height 	= 36,
+				fontSize = 14,
+			},
+			{
 				label = 'Settings',
 				target 	= 'scenes.settings' ,
-				y 		= 300,
+				y 		= 360,
 				height 	= 36,
 				fontSize = 14,
 			},
