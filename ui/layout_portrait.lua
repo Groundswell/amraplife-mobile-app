@@ -166,9 +166,9 @@ local workoutSummary = {
 	rxSwitchLabelX 	= 70,
 	rxSwitchLabelY 	= height - 200,
 
-	valueLabelX 		= width - 150,
+	valueLabelX 	= width - 150,
 	valueLabelY		= height - 200,
-	valueFieldX 		= width - 50,
+	valueFieldX 	= width - 50,
 	valueFieldY		= height - 200,
 
 	rxReminderX 	= 25,

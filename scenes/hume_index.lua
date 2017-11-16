@@ -157,6 +157,8 @@ function scene:show( event )
 		local deviceContainer = display.newContainer( screenWidth-20, screenHeight*.3333 )
 		deviceContainer:translate( centerX, screenHeight*0.75 )
 
+		group:insert( deviceContainer )
+
 		--deviceContainer.anchorChildren = false
 		--deviceContainer.anchorChildren = false
 

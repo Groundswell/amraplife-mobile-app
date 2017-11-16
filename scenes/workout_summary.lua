@@ -100,7 +100,7 @@ function scene:show( event )
 
 	if event.phase == "will" then
 
-		local Layout = require( 'ui.layout_' .. screenOrient )
+		--local Layout = require( 'ui.layout_' .. screenOrient )
 
 		-- ui.bg = UI:setBg({
 		-- 	parent 		= group,
@@ -115,10 +115,10 @@ function scene:show( event )
 		ui.header = UI:setHeader({
 			parent 	= group,
 			title 	= 'Workout Summary',
-			x 		= Layout.centerX,
+			x 		= centerX,
 			y 		= 0,
-			width 	= Layout.width,
-			height 	= Layout.headerHeight
+			width 	= screenWidth,
+			height 	= 50
 			})
 
 		all_results = FileUtils.loadTable( "all_results.json" )
@@ -134,14 +134,14 @@ function scene:show( event )
 		if results.summary.cover_img then 
 			display.remove( ui.bg )
 			local name = results.summary.cover_img:match( "([^/]+)$" )
-			display.loadRemoteImage( results.summary.cover_img, 'GET', function(e) ui.bg = e.target;ui.bg.anchorY=0;group:insert( ui.bg );ui.bgDimmer=display.newRect( group, Layout.centerX, 50, Layout.width, Layout.height );ui.bgDimmer.anchorY=0;ui.bgDimmer.fill={ 0, 0, 0, 0.5 };ui.bgDimmer:toBack(); ui.bg:toBack(); end, name, Layout.centerX, 50 )
+			display.loadRemoteImage( results.summary.cover_img, 'GET', function(e) ui.bg = e.target;ui.bg.anchorY=0;group:insert( ui.bg );ui.bgDimmer=display.newRect( group, centerX, 50, screenWidth, screenHeight );ui.bgDimmer.anchorY=0;ui.bgDimmer.fill={ 0, 0, 0, 0.5 };ui.bgDimmer:toBack(); ui.bg:toBack(); end, name, centerX, 50 )
 		end
 
 		ui.workoutTitle = display.newText({
 			parent 	= group,
 			text 	= results.summary.workout_title,
-			x 		= Layout.workout_summary.titleX,
-			y 		= Layout.workout_summary.titleY,
+			x 		= centerX,
+			y 		= 90,
 			font 	= 'Lato-Bold.ttf',
 			fontSize 	= 24
 			})
@@ -149,8 +149,8 @@ function scene:show( event )
 		ui.dateDisp = display.newText({
 			parent 	= group,
 			text 	= "Performed at: " .. results.summary.started_at,
-			x 		= Layout.workout_summary.dateX,
-			y 		= Layout.workout_summary.dateY,
+			x 		= centerX,
+			y 		= 155,
 			font 	= 'Lato.ttf',
 			fontSize = 14
 			})
@@ -164,23 +164,23 @@ function scene:show( event )
 		ui.totalDisp = display.newText({
 			parent 	= group,
 			text 	=  totalTxt,
-			x 		= Layout.workout_summary.totalX,
-			y 		= Layout.workout_summary.totalY,
+			x 		= centerX,
+			y 		= 125,
 			font 	= 'Lato.ttf',
 			fontSize = 20
 			})
 
 
-		ui.sep = display.newLine( group, Layout.workout_summary.sepStartX, Layout.workout_summary.sepStartY, Layout.workout_summary.sepEndX, Layout.workout_summary.sepEndY )
+		ui.sep = display.newLine( group, 25, 175, screenWidth-25, 175 )
 		ui.sep.alpha = 0.5
 
 		ui.resultBox = Widget.newScrollView({
-			top 		= Layout.workout_summary.resultsBoxY,
+			top 		= 225,
 			left		= 10,
-			width 		= Layout.workout_summary.resultsBoxWidth,
+			width 		= screenWidth-25,
 			topPadding 	= 20,
 			bottomPadding = 20,
-			height 		= Layout.workout_summary.resultsBoxHeight,
+			height 		= screenHeight - ( 225 + 220 ),
 			horizontalScrollDisabled = true,
 			backgroundColor = { 0, 0, 0, 0.5 }
 			})
@@ -190,8 +190,8 @@ function scene:show( event )
 		ui.resultsBoxTitle = display.newText({
 			parent 	= group,
 			text 	= 'Segment Splits',
-			x 		= Layout.workout_summary.resultsBoxTitleX,
-			y 		= Layout.workout_summary.resultsBoxTitleY,
+			x 		= centerX,
+			y 		= 200,
 			font 	= 'Lato.ttf',
 			fontSize = 18
 			})
@@ -208,7 +208,7 @@ function scene:show( event )
 			ui.segResultsContDisp[i] = display.newText({
 				parent 	= group,
 				text 	= results.segments[i].content .. ":  ",
-				x 		= Layout.workout_summary.segResultsContDispX,
+				x 		= 20,
 				y 		= y,
 				font 	= 'Lato.ttf',
 				fontSize = 14
@@ -220,7 +220,7 @@ function scene:show( event )
 			ui.segResultsValDisp[i] = display.newText({
 				parent 	= group,
 				text 	= formattedTime,
-				x 		= Layout.workout_summary.segResultsValDispX,
+				x 		= screenWidth-40,
 				y 		= y,
 				font 	= 'Lato.ttf',
 				fontSize = 14
@@ -236,16 +236,16 @@ function scene:show( event )
 
 		noteBox = TextBox:new({
 			parent 	= group,
-			width 	= Layout.workout_summary.noteBoxWidth,
-			x 		= Layout.workout_summary.noteBoxX,
-			y 		= Layout.workout_summary.noteBoxY,
+			width 	= screenWidth-50,
+			x 		= centerX,
+			y 		= screenHeight - 120,
 			})
 
 
 
 		rxSwitch = Widget.newSwitch({
-			x 		= Layout.workout_summary.rxSwitchX,
-			y 		= Layout.workout_summary.rxSwitchY,
+			x 		= 20,
+			y 		= screenHeight - 200,
 			style 	= 'checkbox',
 			initialSwitchState 	= true,
 			onRelease 	= rxToggle
@@ -255,8 +255,8 @@ function scene:show( event )
 		ui.rxSwitchLabel = display.newText({
 			parent 	= group,
 			text 	= "Rx?",
-			x 		= Layout.workout_summary.rxSwitchLabelX,
-			y 		= Layout.workout_summary.rxSwitchLabelY
+			x 		= 70,
+			y 		= screenHeight - 200
 			})
 
 		local valuePrompt = "Additional Reps?"
@@ -267,14 +267,14 @@ function scene:show( event )
 		ui.valueLabel = display.newText({
 			parent 	= group,
 			text 	= valuePrompt,
-			x 		= Layout.workout_summary.valueLabelX,
-			y 		= Layout.workout_summary.valueLabelY,
+			x 		= screenWidth - 150,
+			y 		= screenHeight - 200,
 			})
 
 		valueField = TextField:new({
 			parent 	= group,
-			x 		= Layout.workout_summary.valueFieldX,
-			y 		= Layout.workout_summary.valueFieldY,
+			x 		= screenWidth - 50,
+			y 		= screenHeight - 200,
 			width 	= 40,
 			height 	= 28,
 			cornerRadius 	= 4,
@@ -288,9 +288,9 @@ function scene:show( event )
 		ui.rxReminder = display.newText({
 			parent 	= group,
 			text 	= "\r\nNotes:",
-			x 		= Layout.workout_summary.rxReminderX,
-			width 	= Layout.workout_summary.rxReminderWidth,
-			y 		= Layout.workout_summary.rxReminderY,
+			x 		= 25,
+			width 	= screenWidth - 50,
+			y 		= screenHeight - 175,
 			font 	= Theme.font,
 			fontSize 	= 10,
 			})
@@ -298,10 +298,8 @@ function scene:show( event )
 
 		ui.submitBtn = Btn:new({
 			parent 		= group,
-			x 			= Layout.workout_summary.submitX,
-			y 			= Layout.workout_summary.submitY,
-			width 		= Layout.workout_summary.submitWidth,
-			height 		= Layout.workout_summary.submitHeight,
+			x 			= centerX,
+			y 			= screenHeight - 40,
 			label 		= 'Enter',
 			bgColor 	= Theme.colors.dkGreen,
 			onRelease 	= function() finalizeResults() end

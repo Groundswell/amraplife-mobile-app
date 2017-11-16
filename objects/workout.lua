@@ -23,7 +23,7 @@ M.defaults = {
 }
 
 function M:new( opts )
-	local Layout = require( 'ui.layout_' .. screenOrient )
+	--local Layout = require( 'ui.layout_' .. screenOrient )
 
 	if opts == nil then opts = M.defaults end
 	
@@ -77,17 +77,17 @@ function M:new( opts )
 	workout.header = UI:setHeader({
 			parent 	= workout,
 			title 	= 'A Workout',
-			x 		= Layout.centerX,
+			x 		= centerX,
 			y 		= 0,
-			width 	= Layout.width,
-			height 	= Layout.headerHeight
+			width 	= screenWidth,
+			height 	= 50
 			})
 
 	workout.clock = Clock:new({
 		parent 		= workout,
-		x 			= Layout.workout.clockX,
-		y 			= Layout.workout.clockY,
-		fontSize 	= Layout.workout.clockFontSize,
+		x 			= centerX,
+		y 			= 85,
+		fontSize 	= screenWidth / 3,
 		fontFill 	= Theme.colors.dkRed,
 		startAt 	= 0,
 		endAt 		= -1,
@@ -97,19 +97,19 @@ function M:new( opts )
 
 	workout.infoDisplay = display.newText({
 		parent 	= workout,
-		text  	= "Round: 3/8",
-		x 		= Layout.workout.infoDisplayX,
-		y 		= Layout.workout.infoDisplayY,
+		text  	= "Round: 0/0",
+		x 		= 25,
+		y 		= 85 + ( screenWidth / 3 ) + 12,
 		font 	= 'digital-7-mono.ttf',
-		fontSize = Layout.workout.infoDisplayFontSize - 2,
+		fontSize = 30,
 		})
 	workout.infoDisplay.anchorX = 0
 
 	workout.segClock = Clock:new({
 		parent 		= workout,
-		x 			= Layout.workout.segClockX,
-		y 			= Layout.workout.segClockY,
-		fontSize 	= Layout.workout.segClockFontSize,
+		x 			= screenWidth - 25,
+		y 			= 85 + ( screenWidth / 3 ) + 12,
+		fontSize 	= 30,
 		startAt 	= 0,
 		endAt 		= -1,
 		fontFill 	= { 1 },
@@ -117,19 +117,19 @@ function M:new( opts )
 		})
 	workout.segClock.anchorX = 1
 
-	workout.infoSep = display.newLine( workout, Layout.workout.infoSepStartX, Layout.workout.infoSepStartY, Layout.workout.infoSepEndX, Layout.workout.infoSepEndY )
+	workout.infoSep = display.newLine( workout, 25, 85 + ( screenWidth / 3 ) + 12 + 18, screenWidth-25, 85 + ( screenWidth / 3 ) + 12 + 18 )
 	workout.infoSep.alpha = 0.5
 
 	workout.segmentsDisplay = {}
-	workout.segmentsDisplay.activeY = Layout.workout.activeSegmentY
+	workout.segmentsDisplay.activeY = 85 + ( screenWidth / 3 ) + 12 + 32
 
 	workout.actionBtn = Btn:new({
 		parent 		= workout,
 		label 		= 'Action',
-		x 			= Layout.workout.actionBtnX,
-		y 			= Layout.workout.actionBtnY,
-		width  		= Layout.workout.actionBtnWidth,
-		height  	= Layout.workout.actionBtnHeight,
+		x 			= centerX,
+		y 			= screenHeight - ( screenHeight * 0.125 ),
+		width  		= screenWidth * 0.75,
+		height  	= screenHeight * 0.16,
 		bgColor 	= Theme.colors.dkGreen,
 		bgColorPressed 	= Theme.colors.green,
 		})
@@ -140,14 +140,14 @@ function M:new( opts )
 		opts.font = opts.font or 'digital-7-mono.ttf'
 		opts.largest_size = opts.largest_size or 100
 		opts.time = opts.time or 600
-		opts.end_x = opts.end_x or Layout.centerX
-		opts.end_y = opts.end_y or Layout.centerY
+		opts.end_x = opts.end_x or centerX
+		opts.end_y = opts.end_y or centerY
 
 		local textToAnimate = display.newText({
 				parent 	= workout,
 				text 	= opts.text,
-				x 		= Layout.centerX ,
-				y 		= Layout.centerY,
+				x 		= centerX ,
+				y 		= centerY,
 				font 	= opts.font,
 				fontSize = 1
 				})
@@ -158,15 +158,15 @@ function M:new( opts )
 	local function countIn()
 		local countTxt = display.newText({
 			text = workout.countInCount,
-			x 		= Layout.centerX,
-			y 		= Layout.centerY,
+			x 		= centerX,
+			y 		= centerY,
 			font 	= 'Lato-Black.ttf',
 			fontSize = 1
 			})
 
 		local trxn = easing.outInExpo
 		if workout.countInCount > 0 then 
-			if settings.audio then TextToSpeech.speak( count, { pitch = 0.9, volume = 0.98 } ) end--audio.play( workout.audio.count ) end 
+--			if settings.audio then TextToSpeech.speak( count, { pitch = 0.9, volume = 0.98 } ) end--audio.play( workout.audio.count ) end 
 			transition.to( countTxt, { size=500, time=900, transition=trxn, onComplete=function() display.remove( countTxt ) end } )
 		else
 			countTxt.text = 'Go!'
@@ -399,19 +399,19 @@ function M:new( opts )
 		workout.segmentsDisplay[idx] = display.newText({
 			parent 	= workout,
 			text 	= self.data.segments[idx].content,
-			width 	= Layout.width-20,
+			width 	= screenWidth-20,
 			align 	= 'center',
 			y 		= workout.segmentsDisplay.activeY,
 			x 		= centerX,
-			font 	= Layout.workout.segmentsDisplayActiveFont,
-			fontSize = Layout.workout.segmentsDisplayFontSize
+			font 	= Theme.fonts.regular,
+			fontSize = 28
 		})
 		workout.segmentsDisplay[idx].anchorY = 0
 
 		-- now go through any remaining
 		for i=idx+1, #self.data.segments do
 			local font = 'Lato-Hairline.ttf'
-			local y = self.segmentsDisplay[i-1].y + self.segmentsDisplay[i-1].contentHeight + Layout.workout.segmentsDisplayYOffset
+			local y = self.segmentsDisplay[i-1].y + self.segmentsDisplay[i-1].contentHeight + 10
 			self.segmentsDisplay[i] = display.newText({
 				parent 	= workout,
 				text 	= self.data.segments[i].content,
@@ -420,7 +420,7 @@ function M:new( opts )
 				y 		= y,
 				x 		= centerX,
 				font 	= font,
-				fontSize = Layout.workout.segmentsDisplayFontSize
+				fontSize = 28
 				})
 			self.segmentsDisplay[i].anchorY = 0
 		end

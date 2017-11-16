@@ -50,9 +50,8 @@ function scene:show( event )
 		ui.overview_title = display.newText({
 			parent 		= group,
 			text 		= '',
-			x 			= Layout.workouts_show.titleX,
-			y 			= Layout.workouts_show.titleY,
-			width 		= Layout.workouts_show.titleWidth,
+			x 			= centerX,
+			y 			= 70,
 			fontSize 	= 24,
 			font 		= Theme.fonts.black,
 			align 		= "center",
@@ -62,10 +61,10 @@ function scene:show( event )
 		ui.overview_content = display.newText({
 			parent 		= group,
 			text 		= '',
-			x 			= Layout.workouts_show.overviewX,
-			y 			= Layout.workouts_show.overviewY,
-			width 		= Layout.workouts_show.overviewWidth,
-			height 		= Layout.workouts_show.overviewHeight,
+			x 			= centerX,
+			y 			= 100,
+--			width 		= Layout.workouts_show.overviewWidth,
+--			height 		= Layout.workouts_show.overviewHeight,
 			font 		= Theme.fonts.light,
 			fontSize 	= 22,
 			align 		= "center"
@@ -74,15 +73,15 @@ function scene:show( event )
 
 		ui.go_btn = Btn:new({
 			group 	= group,
-			x 		= Layout.workouts_show.goBtnX,
-			y 		= Layout.workouts_show.goBtnY,
-			width 	= Layout.workouts_show.goBtnWidth,
-			height 	= Layout.workouts_show.goBtnHeight,
+			x 		= centerX,
+			y 		= screenHeight-50,
+--			width 	= Layout.workouts_show.goBtnWidth,
+--			height 	= Layout.workouts_show.goBtnHeight,
 			fontSize 	= 20,
 			label 	= "Ready! Ready!",
 			bgColor 	= Theme.colors.dkGreen,
 			bgColorPressed 	= Theme.colors.green,
-			onRelease 	= function() TextToSpeech.speak( 'Ready. Ready.', { pitch = 0.9, volume = 0.98 } ); Composer.gotoScene( "scenes.workout_run", { effect='fade', time=1000 } ) end
+			onRelease 	= function() Composer.gotoScene( "scenes.workout_run", { effect='fade', time=1000 } ) end
 			})
 
 
@@ -114,7 +113,7 @@ function scene:show( event )
 
 			if data.cover_img then 
 				local name = data.cover_img:match( "([^/]+)$" )
-				display.loadRemoteImage( data.cover_img, 'GET', function(e) ui.bg = e.target; ui.bg.anchorY=0; group:insert( ui.bg ); ui.bg:toBack(); end, name, Layout.centerX, Layout.headerHeight )
+				display.loadRemoteImage( data.cover_img, 'GET', function(e) ui.bg = e.target; ui.bg.anchorY=0; group:insert( ui.bg ); ui.bg:toBack(); end, name, centerX, display.topStatusBarContentHeight )
 			else
 				ui.bg = display.newImageRect( group, 'assets/images/bgs/bg3.png', Layout.width, Layout.height )
 				ui.bg.x = Layout.centerX
