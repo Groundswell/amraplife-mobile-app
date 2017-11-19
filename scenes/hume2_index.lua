@@ -25,13 +25,14 @@ local Device = require( "utilities.device" )
 
 local TiledBg = require( 'ui.tiled_bg')
 
+local MovementService = require( "utilities.movement_service" )
 
-
----------------------------------------------------------------------------------
--- Data Processing
----------------------------------------------------------------------------------
 
 local MAX_DATA_POINT_CACHE_SIZE = 300
+local GRAVITY_METERS_PER_SECOND = 9.8
+
+local ui = {}
+local activeMovements = {}
 
 local angularVelocityXAxis = 0.0
 local angularVelocityYAxis = 0.0
@@ -43,6 +44,9 @@ local timeDelta = 0.0
 local timeStart = nil
 local timeDeltaSum = 0
 
+---------------------------------------------------------------------------------
+-- Data Processing
+---------------------------------------------------------------------------------
 
 function dump(o)
    if type(o) == 'table' then
@@ -57,33 +61,6 @@ function dump(o)
    end
 end
 
-function dumpDataPoint(dataPoint)
-	local s = ""
-	s = s .. "{\n"
-	s = s .. "  device_name: " .. tostring( dataPoint['device_name'] ) .. "\n"
-	s = s .. "  device_id: " .. tostring( dataPoint['device_id'] ) .. "\n"
-	s = s .. "  time_start: " .. tostring( dataPoint['time_start'] ) .. "\n"
-	s = s .. "  time_now: " .. tostring( dataPoint['time_now'] ) .. "\n"
-	s = s .. "  time_delta_sum: " .. tostring( dataPoint['time_delta_sum'] ) .. "\n"
-	s = s .. "  time_delta: " .. tostring( dataPoint['time_delta'] ) .. "\n"
-	s = s .. "  acceleration_xaxis: " .. tostring( dataPoint['acceleration_xaxis'] ) .. "\n"
-	s = s .. "  acceleration_yaxis: " .. tostring( dataPoint['acceleration_yaxis'] ) .. "\n"
-	s = s .. "  acceleration_zaxis: " .. tostring( dataPoint['acceleration_zaxis'] ) .. "\n"
-	s = s .. "  acceleration_xaxis_delta: " .. tostring( dataPoint['acceleration_xaxis_delta'] ) .. "\n"
-	s = s .. "  acceleration_yaxis_delta: " .. tostring( dataPoint['acceleration_yaxis_delta'] ) .. "\n"
-	s = s .. "  acceleration_zaxis_delta: " .. tostring( dataPoint['acceleration_zaxis_delta'] ) .. "\n"
-	s = s .. "  acceleration_xaxis_delta_sum: " .. tostring( dataPoint['acceleration_xaxis_delta_sum'] ) .. "\n"
-	s = s .. "  acceleration_yaxis_delta_sum: " .. tostring( dataPoint['acceleration_yaxis_delta_sum'] ) .. "\n"
-	s = s .. "  acceleration_zaxis_delta_sum: " .. tostring( dataPoint['acceleration_zaxis_delta_sum'] ) .. "\n"
-	s = s .. "  acceleration_xaxis_corner: " .. tostring( dataPoint['acceleration_xaxis_corner'] ) .. "\n"
-	s = s .. "  acceleration_yaxis_corner: " .. tostring( dataPoint['acceleration_yaxis_corner'] ) .. "\n"
-	s = s .. "  acceleration_zaxis_corner: " .. tostring( dataPoint['acceleration_zaxis_corner'] ) .. "\n"
-	s = s .. "  angular_velocity_xaxis: " .. tostring( dataPoint['angular_velocity_xaxis'] ) .. "\n"
-	s = s .. "  angular_velocity_yaxis: " .. tostring( dataPoint['angular_velocity_yaxis'] ) .. "\n"
-	s = s .. "  angular_velocity_zaxis: " .. tostring( dataPoint['angular_velocity_zaxis'] ) .. "\n"
-	s = s .. "}\n"
-	return s
-end
 
 function hume2Start()
 	print( "hume2Start()" )
@@ -98,11 +75,10 @@ function hume2Start()
 	timeStart = os.time( os.date( '*t' ) )
 	timeDeltaSum = 0
 
+	activeMovements = {}
 
 	if Device.isSimulator then
-
 		Runtime:addEventListener( "enterFrame", hume2AccelerometerMonitorSimulator )
-
 	end
 
 	system.setGyroscopeInterval( 100 )
@@ -179,12 +155,34 @@ function hume2AccelerometerMonitor( event )
 	dataPoint['acceleration_xaxis_delta']		= accelerationXAxis - ( lastDataPoint['acceleration_xaxis'] )
 	dataPoint['acceleration_yaxis_delta']		= accelerationYAxis - ( lastDataPoint['acceleration_yaxis'] )
 	dataPoint['acceleration_zaxis_delta']		= accelerationZAxis - ( lastDataPoint['acceleration_zaxis'] )
+
 	dataPoint['acceleration_xaxis_delta_sum']	= 0.0
 	dataPoint['acceleration_yaxis_delta_sum']	= 0.0
 	dataPoint['acceleration_zaxis_delta_sum']	= 0.0
 	dataPoint['acceleration_xaxis_delta_sum']	= lastDataPoint['acceleration_xaxis_delta_sum'] + dataPoint['acceleration_xaxis_delta']
 	dataPoint['acceleration_yaxis_delta_sum']	= lastDataPoint['acceleration_yaxis_delta_sum'] + dataPoint['acceleration_yaxis_delta']
 	dataPoint['acceleration_zaxis_delta_sum']	= lastDataPoint['acceleration_zaxis_delta_sum'] + dataPoint['acceleration_zaxis_delta']
+
+	dataPoint['acceleration_xaxis_velocity']	= 0.0
+	dataPoint['acceleration_yaxis_velocity']	= 0.0
+	dataPoint['acceleration_zaxis_velocity']	= 0.0
+	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( dataPoint['acceleration_xaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
+	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( dataPoint['acceleration_yaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
+	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( dataPoint['acceleration_zaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
+	dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( ( dataPoint['acceleration_xaxis_delta_sum'] + lastDataPoint['acceleration_xaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+	dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( ( dataPoint['acceleration_yaxis_delta_sum'] + lastDataPoint['acceleration_yaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+	dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( ( dataPoint['acceleration_zaxis_delta_sum'] + lastDataPoint['acceleration_zaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+
+	dataPoint['acceleration_xaxis_distance']	= 0.0
+	dataPoint['acceleration_yaxis_distance']	= 0.0
+	dataPoint['acceleration_zaxis_distance']	= 0.0
+	-- dataPoint['acceleration_xaxis_distance']	= lastDataPoint['acceleration_xaxis_distance'] + ( dataPoint['acceleration_xaxis_velocity'] * timeDelta )
+	-- dataPoint['acceleration_yaxis_distance']	= lastDataPoint['acceleration_yaxis_distance'] + ( dataPoint['acceleration_yaxis_velocity'] * timeDelta )
+	-- dataPoint['acceleration_zaxis_distance']	= lastDataPoint['acceleration_zaxis_distance'] + ( dataPoint['acceleration_zaxis_velocity'] * timeDelta )
+	dataPoint['acceleration_xaxis_distance']	= lastDataPoint['acceleration_xaxis_distance'] + ( ( dataPoint['acceleration_xaxis_velocity'] + lastDataPoint['acceleration_xaxis_velocity'] ) / 2.0 * timeDelta )
+	dataPoint['acceleration_yaxis_distance']	= lastDataPoint['acceleration_yaxis_distance'] + ( ( dataPoint['acceleration_yaxis_velocity'] + lastDataPoint['acceleration_yaxis_velocity'] ) / 2.0 * timeDelta )
+	dataPoint['acceleration_zaxis_distance']	= lastDataPoint['acceleration_zaxis_distance'] + ( ( dataPoint['acceleration_zaxis_velocity'] + lastDataPoint['acceleration_zaxis_velocity'] ) / 2.0 * timeDelta )
+
 	dataPoint['acceleration_xaxis_corner']		= ( lastDataPoint['acceleration_xaxis_delta'] > 0.0 and dataPoint['acceleration_xaxis_delta'] <= 0.0 ) or ( lastDataPoint['acceleration_xaxis_delta'] <= 0.0 and dataPoint['acceleration_xaxis_delta'] > 0.0 )
 	dataPoint['acceleration_yaxis_corner']		= ( lastDataPoint['acceleration_yaxis_delta'] > 0.0 and dataPoint['acceleration_yaxis_delta'] <= 0.0 ) or ( lastDataPoint['acceleration_yaxis_delta'] <= 0.0 and dataPoint['acceleration_yaxis_delta'] > 0.0 )
 	dataPoint['acceleration_zaxis_corner']		= ( lastDataPoint['acceleration_zaxis_delta'] > 0.0 and dataPoint['acceleration_zaxis_delta'] <= 0.0 ) or ( lastDataPoint['acceleration_zaxis_delta'] <= 0.0 and dataPoint['acceleration_zaxis_delta'] > 0.0 )
@@ -196,6 +194,17 @@ function hume2AccelerometerMonitor( event )
 	-- dataPoint['angle_zaxis']				= angle_zaxis
 
 	-- print( dumpDataPoint(dataPoint) )
+
+	local movementListStr = ''
+	for movement_key, activeMovement in pairs(activeMovements) do
+		if activeMovement['status'] == 'qualified' then
+			movementListStr = movementListStr .. movement_key .. "\n"
+		end
+	end
+
+	if ui then
+		ui.movements.text = movementListStr
+	end
 
 	lastDataPoint = dataPoint
 
@@ -209,6 +218,8 @@ function hume2AccelerometerMonitor( event )
 		sendRequest( dataPointFlush )
 
 	end
+
+	processDataPointForMovement( dataPoint )
 
     return dataPoint
 end
@@ -229,11 +240,96 @@ end
 
 
 --------------------------------------------------------------------------------
+-- Movement Matching Functions -------------------------------------------------
+--------------------------------------------------------------------------------
+
+function processDataPointForMovement( dataPoint )
+
+	-- test/stop/progress active movements -------------------------------------
+	local remainingActiveMovements = {}
+	for movement_key, activeMovement in pairs(activeMovements) do
+
+		MovementService.updateActiveMovement( dataPoint, activeMovement )
+
+		-- keep if there are no path states or if not complete
+		if activeMovement['status'] == 'completed' then
+			print( 'COMPLETED!!! Moving on.' .. movement_key )
+		elseif activeMovement['status'] == 'failed' then
+			print( 'discard ' .. movement_key )
+		elseif activeMovement['status'] == 'qualified' then
+			print( 'qualified!!! keep ' .. movement_key )
+			remainingActiveMovements[movement_key] = activeMovement
+		else
+			print( 'keep ' .. movement_key )
+			remainingActiveMovements[movement_key] = activeMovement
+		end
+
+	end
+	activeMovements = remainingActiveMovements
+
+	-- add new active movements ------------------------------------------------
+	----------------------------------------------------------------------------
+	for movement_key, movement in pairs(MovementService.all()) do
+
+    	if not( activeMovements[movement_key] ) and MovementService.meetsMovementStartCriteria( dataPoint, movement ) then
+
+			print( "Start Movement: " .. tostring( movement_key ) )
+
+			activeMovements[movement_key] = MovementService.newActiveMovement( dataPoint, movement )
+
+		end
+
+	end
+
+	-- print( dump( activeMovements ) )
+
+end
+
+--------------------------------------------------------------------------------
+-- Data Point Functions --------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
+function dumpDataPoint(dataPoint)
+	local s = ""
+	s = s .. "{\n"
+	s = s .. "  device_name: " .. tostring( dataPoint['device_name'] ) .. "\n"
+	s = s .. "  device_id: " .. tostring( dataPoint['device_id'] ) .. "\n"
+	s = s .. "  time_start: " .. tostring( dataPoint['time_start'] ) .. "\n"
+	s = s .. "  time_now: " .. tostring( dataPoint['time_now'] ) .. "\n"
+	s = s .. "  time_delta_sum: " .. tostring( dataPoint['time_delta_sum'] ) .. "\n"
+	s = s .. "  time_delta: " .. tostring( dataPoint['time_delta'] ) .. "\n"
+	s = s .. "  acceleration_xaxis: " .. tostring( dataPoint['acceleration_xaxis'] ) .. "\n"
+	s = s .. "  acceleration_yaxis: " .. tostring( dataPoint['acceleration_yaxis'] ) .. "\n"
+	s = s .. "  acceleration_zaxis: " .. tostring( dataPoint['acceleration_zaxis'] ) .. "\n"
+	s = s .. "  acceleration_xaxis_delta: " .. tostring( dataPoint['acceleration_xaxis_delta'] ) .. "\n"
+	s = s .. "  acceleration_yaxis_delta: " .. tostring( dataPoint['acceleration_yaxis_delta'] ) .. "\n"
+	s = s .. "  acceleration_zaxis_delta: " .. tostring( dataPoint['acceleration_zaxis_delta'] ) .. "\n"
+	s = s .. "  acceleration_xaxis_delta_sum: " .. tostring( dataPoint['acceleration_xaxis_delta_sum'] ) .. "\n"
+	s = s .. "  acceleration_yaxis_delta_sum: " .. tostring( dataPoint['acceleration_yaxis_delta_sum'] ) .. "\n"
+	s = s .. "  acceleration_zaxis_delta_sum: " .. tostring( dataPoint['acceleration_zaxis_delta_sum'] ) .. "\n"
+	s = s .. "  acceleration_xaxis_corner: " .. tostring( dataPoint['acceleration_xaxis_corner'] ) .. "\n"
+	s = s .. "  acceleration_yaxis_corner: " .. tostring( dataPoint['acceleration_yaxis_corner'] ) .. "\n"
+	s = s .. "  acceleration_zaxis_corner: " .. tostring( dataPoint['acceleration_zaxis_corner'] ) .. "\n"
+	s = s .. "  acceleration_xaxis_velocity: " .. tostring( dataPoint['acceleration_xaxis_velocity'] ) .. "\n"
+	s = s .. "  acceleration_yaxis_velocity: " .. tostring( dataPoint['acceleration_yaxis_velocity'] ) .. "\n"
+	s = s .. "  acceleration_zaxis_velocity: " .. tostring( dataPoint['acceleration_zaxis_velocity'] ) .. "\n"
+	s = s .. "  acceleration_xaxis_distance: " .. tostring( dataPoint['acceleration_xaxis_distance'] ) .. "\n"
+	s = s .. "  acceleration_yaxis_distance: " .. tostring( dataPoint['acceleration_yaxis_distance'] ) .. "\n"
+	s = s .. "  acceleration_zaxis_distance: " .. tostring( dataPoint['acceleration_zaxis_distance'] ) .. "\n"
+	s = s .. "  angular_velocity_xaxis: " .. tostring( dataPoint['angular_velocity_xaxis'] ) .. "\n"
+	s = s .. "  angular_velocity_yaxis: " .. tostring( dataPoint['angular_velocity_yaxis'] ) .. "\n"
+	s = s .. "  angular_velocity_zaxis: " .. tostring( dataPoint['angular_velocity_zaxis'] ) .. "\n"
+	s = s .. "}\n"
+	return s
+end
+
+--------------------------------------------------------------------------------
 -- Network Functions -----------------------------------------------------------
 --------------------------------------------------------------------------------
 
 
-local function networkListener( event )
+function networkListener( event )
 
     if ( event.isError ) then
         print( "Network error: ", event.response )
@@ -268,9 +364,6 @@ end
 -- BEGINNING OF YOUR IMPLEMENTATION
 ---------------------------------------------------------------------------------
 
-local ui = {}
-
-
 
 -- Called when the scene's view does not exist:
 function scene:create( event )
@@ -294,7 +387,18 @@ function scene:show( event )
 			height 	= 50
 			})
 
+		ui.movements = display.newText( group, "none", centerX, 100, 'Lato', 12 )
+
+
+
 		hume2Start()
+
+		-- trigger laydown
+		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
+		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
+		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
+		-- processDataPointForMovement( { acceleration_xaxis=0.01, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
+		-- processDataPointForMovement( { acceleration_xaxis=0.01, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
 
 	end
 
