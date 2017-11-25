@@ -118,7 +118,7 @@ function hume2AccelerometerMonitorSimulator()
 	-- print( "hume2AccelerometerMonitorSimulator()" )
 
 	local e = {
-		xGravity=( (math.random()*2-1)/100 ),
+		xGravity=( 1.0 - math.random()/10 ),
 		yGravity=( (math.random()*2-1)/100 ),
 		zGravity=( (math.random()*2-1)/100 ),
 		deltaTime=0.01,
@@ -208,7 +208,7 @@ function hume2AccelerometerMonitor( event )
 
 	lastDataPoint = dataPoint
 
-	table.insert(dataPointCache, dataPoint)
+	-- table.insert(dataPointCache, dataPoint)
 
 	if table.getn(dataPointCache) >= MAX_DATA_POINT_CACHE_SIZE then
 
