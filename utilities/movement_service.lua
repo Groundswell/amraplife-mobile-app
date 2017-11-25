@@ -30,50 +30,50 @@ local movements = {
 			}, -- path end
 		}, -- paths end
 	}, -- movement end: laydown
-	pushup={
-		name='Push Up',
-		paths={
-			{ -- path start
-				prerequisites={
-					ranges={
-						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
-					}, -- ranges end
-				}, -- prerequisites end
-				vectors={
-					{ -- vector start
-						ranges={
-							{ acceleration_xaxis_delta={ -0.1, nil } }
-						}, -- ranges end
-						complete={
-							sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
-						},
-					} -- vector end
-				}, -- vectors end
-			}, -- path end
-		}, -- paths end
-	}, -- movement end: pushup
-	squat={
-		name='Squat',
-		paths={
-			{ -- path start
-				prerequisites={
-					ranges={
-						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
-					}, -- ranges end
-				}, -- prerequisites end
-				vectors={
-					{ -- vector start
-						ranges={
-							{ acceleration_xaxis_delta={ -0.1, nil } }
-						}, -- ranges end
-						complete={
-							sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
-						},
-					} -- vector end
-				}, -- vectors end
-			}, -- path end
-		}, -- paths end
-	}, -- movement end: squat
+	-- pushup={
+	-- 	name='Push Up',
+	-- 	paths={
+	-- 		{ -- path start
+	-- 			prerequisites={
+	-- 				ranges={
+	-- 					{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+	-- 				}, -- ranges end
+	-- 			}, -- prerequisites end
+	-- 			vectors={
+	-- 				{ -- vector start
+	-- 					ranges={
+	-- 						{ acceleration_xaxis_delta={ -0.1, nil } }
+	-- 					}, -- ranges end
+	-- 					complete={
+	-- 						sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
+	-- 					},
+	-- 				} -- vector end
+	-- 			}, -- vectors end
+	-- 		}, -- path end
+	-- 	}, -- paths end
+	-- }, -- movement end: pushup
+	-- squat={
+	-- 	name='Squat',
+	-- 	paths={
+	-- 		{ -- path start
+	-- 			prerequisites={
+	-- 				ranges={
+	-- 					{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+	-- 				}, -- ranges end
+	-- 			}, -- prerequisites end
+	-- 			vectors={
+	-- 				{ -- vector start
+	-- 					ranges={
+	-- 						{ acceleration_xaxis_delta={ -0.1, nil } }
+	-- 					}, -- ranges end
+	-- 					complete={
+	-- 						sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
+	-- 					},
+	-- 				} -- vector end
+	-- 			}, -- vectors end
+	-- 		}, -- path end
+	-- 	}, -- paths end
+	-- }, -- movement end: squat
 }
 
 

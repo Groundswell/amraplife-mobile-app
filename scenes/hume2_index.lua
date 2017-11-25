@@ -195,7 +195,7 @@ function hume2AccelerometerMonitor( event )
 
 	-- print( dumpDataPoint(dataPoint) )
 
-	local movementListStr = ''
+	local movementListStr = '' .. event.xGravity .. "\n" .. event.yGravity .. "\n" .. event.zGravity .. "\n"
 	for movement_key, activeMovement in pairs(activeMovements) do
 		if activeMovement['status'] == 'qualified' then
 			movementListStr = movementListStr .. movement_key .. "\n"
@@ -387,7 +387,7 @@ function scene:show( event )
 			height 	= 50
 			})
 
-		ui.movements = display.newText( group, "none", centerX, 100, 'Lato', 12 )
+		ui.movements = ui.movements or display.newText( { parent=group, text="", x=centerX, y=centerY, width=centerX, height=centerY, font='Lato', fontSize=12, align='left' } )
 
 
 
