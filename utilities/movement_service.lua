@@ -1,7 +1,11 @@
 
-local DATA_POINT_NUMERIC_ATTRIBUTES = { 'time_delta','acceleration_xaxis','acceleration_yaxis','acceleration_zaxis','acceleration_xaxis_delta','acceleration_yaxis_delta','acceleration_zaxis_delta','acceleration_xaxis_delta_sum','acceleration_yaxis_delta_sum','acceleration_zaxis_delta_sum','acceleration_xaxis_corner','acceleration_yaxis_corner','acceleration_zaxis_corner','acceleration_xaxis_velocity','acceleration_yaxis_velocity','acceleration_zaxis_velocity','acceleration_xaxis_distance','acceleration_yaxis_distance','acceleration_zaxis_distance','angular_velocity_xaxis','angular_velocity_yaxis','angular_velocity_zaxis' }
+local DATA_POINT_NUMERIC_ATTRIBUTES = { 'time_delta','acceleration_xaxis','acceleration_yaxis','acceleration_zaxis','acceleration_xaxis_delta','acceleration_yaxis_delta','acceleration_zaxis_delta','acceleration_xaxis_delta_sum','acceleration_yaxis_delta_sum','acceleration_zaxis_delta_sum','acceleration_xaxis_velocity','acceleration_yaxis_velocity','acceleration_zaxis_velocity','acceleration_xaxis_distance','acceleration_yaxis_distance','acceleration_zaxis_distance','angular_velocity_xaxis','angular_velocity_yaxis','angular_velocity_zaxis' }
 
 
+
+-- Movements
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 local movements = {
 	laydown={
@@ -26,10 +30,59 @@ local movements = {
 			}, -- path end
 		}, -- paths end
 	}, -- movement end: laydown
+	pushup={
+		name='Push Up',
+		paths={
+			{ -- path start
+				prerequisites={
+					ranges={
+						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+					}, -- ranges end
+				}, -- prerequisites end
+				vectors={
+					{ -- vector start
+						ranges={
+							{ acceleration_xaxis_delta={ -0.1, nil } }
+						}, -- ranges end
+						complete={
+							sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
+						},
+					} -- vector end
+				}, -- vectors end
+			}, -- path end
+		}, -- paths end
+	}, -- movement end: pushup
+	squat={
+		name='Squat',
+		paths={
+			{ -- path start
+				prerequisites={
+					ranges={
+						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+					}, -- ranges end
+				}, -- prerequisites end
+				vectors={
+					{ -- vector start
+						ranges={
+							{ acceleration_xaxis_delta={ -0.1, nil } }
+						}, -- ranges end
+						complete={
+							sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
+						},
+					} -- vector end
+				}, -- vectors end
+			}, -- path end
+		}, -- paths end
+	}, -- movement end: squat
 }
 
 
-function dump(o)
+
+-- Utility Functions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+local function dump(o)
    if type(o) == 'table' then
       local s = '{ '
       for k,v in pairs(o) do
@@ -42,7 +95,56 @@ function dump(o)
    end
 end
 
-function matchDataPointToMovementPaths( dataPoint, movement )
+
+
+-- Matching Functions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+local function evaluateRange( value, range )
+	local match = true
+
+	if not( range[1] == nil ) then
+		match = match and (value >= range[1])
+	end
+
+	if not( range[2] == nil ) then
+		match = match and (value <= range[2])
+	end
+
+	-- print( 'evaluateRange', value, dump( range ), dump( match ) )
+
+	return match
+end
+
+
+local function matchDataPoint( dataPoint, ranges )
+	local match = true
+
+	for attribute,value in pairs( ranges ) do
+		-- print( '    -> attribute', attribute )
+		local abs = string.ends( attribute, '_abs' )
+
+		if abs then
+			attribute = string.sub( attribute, 0, -5 )
+		end
+
+
+		local dataPointAttributeValue = dataPoint[attribute]
+		if abs then
+			dataPointAttributeValue = math.abs( dataPointAttributeValue )
+		end
+
+
+		match = match and evaluateRange( dataPointAttributeValue, value )
+
+	end
+
+	return match
+end
+
+
+local function matchDataPointToMovementPaths( dataPoint, movement )
 	local paths = false
 
 	for path_index, path in ipairs( movement['paths'] ) do
@@ -64,6 +166,12 @@ function matchDataPointToMovementPaths( dataPoint, movement )
 
 	return paths
 end
+
+
+
+-- Public Functions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 local function findMovement( dataPoint )
 
@@ -106,49 +214,6 @@ local function newActiveMovement( dataPoint, movement )
 
 	return activeMovement
 end
-
-function matchDataPoint( dataPoint, ranges )
-	local match = true
-
-	for attribute,value in pairs( ranges ) do
-		-- print( '    -> attribute', attribute )
-		local abs = string.ends( attribute, '_abs' )
-
-		if abs then
-			attribute = string.sub( attribute, 0, -5 )
-		end
-
-
-		local dataPointAttributeValue = dataPoint[attribute]
-		if abs then
-			dataPointAttributeValue = math.abs( dataPointAttributeValue )
-		end
-
-
-		match = match and evaluateRange( dataPointAttributeValue, value )
-
-	end
-
-	return match
-end
-
-
-function evaluateRange( value, range )
-	local match = true
-
-	if not( range[1] == nil ) then
-		match = match and (value >= range[1])
-	end
-
-	if not( range[2] == nil ) then
-		match = match and (value <= range[2])
-	end
-
-	-- print( 'evaluateRange', value, dump( range ), dump( match ) )
-
-	return match
-end
-
 
 local function updateActiveMovement( dataPoint, activeMovement )
 
@@ -225,6 +290,11 @@ local function meetsMovementStartCriteria( dataPoint, movement )
 	local activePaths = matchDataPointToMovementPaths( dataPoint, movement )
 	return activePaths and table.getn( activePaths ) > 0
 end
+
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 return {
 	find=findMovement,
