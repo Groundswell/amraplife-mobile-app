@@ -14,13 +14,35 @@ local movements = {
 			{ -- path start
 				prerequisites={
 					ranges={
-						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
 					}, -- ranges end
 				}, -- prerequisites end
 				vectors={
 					{ -- vector start
 						ranges={
-							{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
+							{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
+						},
+						complete={
+							sums={ { time_delta={ 1.0, nil } } }
+						},
+					} -- vector end
+				}, -- vectors end
+			}, -- path end
+		}, -- paths end
+	}, -- movement end: laydown
+	plank={
+		name='Plank',
+		paths={
+			{ -- path start
+				prerequisites={
+					ranges={
+						{ acceleration_xaxis_abs={ 0.85, 0.98 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
+					}, -- ranges end
+				}, -- prerequisites end
+				vectors={
+					{ -- vector start
+						ranges={
+							{ acceleration_xaxis_abs={ 0.85, 0.98 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
 						},
 						complete={
 							sums={ { time_delta={ 1.0, nil } } }
@@ -278,7 +300,7 @@ local function updateActiveMovement( dataPoint, activeMovement )
 	-- elseif  then
 	--	activeMovement['status'] = 'verified' -- movement is verified
 	elseif table.getn( activeMovement['pathStates'] ) == 0 then
-		activeMovement['status'] = 'started' -- movement has started, but has not been verified
+		activeMovement['status'] = 'failed' -- movement has started, but has not been verified
 	end
 
 

@@ -196,9 +196,14 @@ function hume2AccelerometerMonitor( event )
 	-- print( dumpDataPoint(dataPoint) )
 
 	local movementListStr = '' .. event.xGravity .. "\n" .. event.yGravity .. "\n" .. event.zGravity .. "\n"
-	for movement_key, activeMovement in pairs(activeMovements) do
-		if activeMovement['status'] == 'qualified' then
-			movementListStr = movementListStr .. movement_key .. "\n"
+
+	movementListStr = movementListStr .. "movements:\n"
+	for movement_key, movement in pairs(MovementService.all()) do
+		movementListStr = movementListStr .. movement_key .. " - "
+		if activeMovements[movement_key] then
+			movementListStr = movementListStr .. activeMovements[movement_key]['status'] .. "\n"
+		else
+			movementListStr = movementListStr .. "none\n"
 		end
 	end
 
