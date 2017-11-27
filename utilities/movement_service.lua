@@ -51,7 +51,45 @@ local movements = {
 				}, -- vectors end
 			}, -- path end
 		}, -- paths end
-	}, -- movement end: laydown
+	}, -- movement end: plank
+	-- pushup={
+	-- 	name='Push Up',
+	-- 	paths={
+	-- 		{ -- path start
+	-- 			prerequisites={
+	-- 				ranges={
+	-- 					{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
+	-- 				}, -- ranges end
+	-- 			}, -- prerequisites end
+	-- 			vectors={
+	-- 				{ -- vector start
+	-- 					ranges={
+	-- 						{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
+	-- 					},
+	-- 					complete={
+	-- 						sums={ { time_delta={ 0.1, nil } } }
+	-- 					},
+	-- 				}, -- vector end
+	-- 				{ -- vector start
+	-- 					ranges={
+	-- 						{ acceleration_xaxis_abs={ 0.96, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
+	-- 					},
+	-- 					complete={
+	-- 						sums={ { time_delta={ 0.1, nil } } }
+	-- 					},
+	-- 				}, -- vector end
+	-- 				{ -- vector start
+	-- 					ranges={
+	-- 						{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
+	-- 					},
+	-- 					complete={
+	-- 						sums={ { time_delta={ 0.1, nil } } }
+	-- 					},
+	-- 				}, -- vector end
+	-- 			}, -- vectors end
+	-- 		}, -- path end
+	-- 	}, -- paths end
+	-- }, -- movement end: pushup
 	-- pushup={
 	-- 	name='Push Up',
 	-- 	paths={
