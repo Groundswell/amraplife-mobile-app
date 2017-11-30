@@ -11,129 +11,56 @@ local movements = {
 	laydown={
 		name='Laydown',
 		paths={
-			{ -- path start
-				prerequisites={
-					ranges={
-						{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
-					}, -- ranges end
-				}, -- prerequisites end
+			{ -- path 1 start
 				vectors={
-					{ -- vector start
-						ranges={
-							{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
-						complete={
-							sums={ { time_delta={ 1.0, nil } } }
+						destination={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
 						},
-					} -- vector end
+					} -- vector 1 end
 				}, -- vectors end
-			}, -- path end
+			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: laydown
 	plank={
 		name='Plank',
 		paths={
-			{ -- path start
-				prerequisites={
-					ranges={
-						{ acceleration_xaxis_abs={ 0.85, 0.98 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
-					}, -- ranges end
-				}, -- prerequisites end
+			{ -- path 1 start
 				vectors={
-					{ -- vector start
-						ranges={
-							{ acceleration_xaxis_abs={ 0.85, 0.98 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
-						complete={
-							sums={ { time_delta={ 1.0, nil } } }
+						destination={
+							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
 						},
-					} -- vector end
+					} -- vector 1 end
 				}, -- vectors end
-			}, -- path end
+			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: plank
-	-- pushup={
-	-- 	name='Push Up',
-	-- 	paths={
-	-- 		{ -- path start
-	-- 			prerequisites={
-	-- 				ranges={
-	-- 					{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
-	-- 				}, -- ranges end
-	-- 			}, -- prerequisites end
-	-- 			vectors={
-	-- 				{ -- vector start
-	-- 					ranges={
-	-- 						{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
-	-- 					},
-	-- 					complete={
-	-- 						sums={ { time_delta={ 0.1, nil } } }
-	-- 					},
-	-- 				}, -- vector end
-	-- 				{ -- vector start
-	-- 					ranges={
-	-- 						{ acceleration_xaxis_abs={ 0.96, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.35 } }
-	-- 					},
-	-- 					complete={
-	-- 						sums={ { time_delta={ 0.1, nil } } }
-	-- 					},
-	-- 				}, -- vector end
-	-- 				{ -- vector start
-	-- 					ranges={
-	-- 						{ acceleration_xaxis_abs={ 0.85, 0.96 }, acceleration_yaxis_abs={ 0.1, 0.45 }, acceleration_zaxis_abs={ 0, 0.35 } }
-	-- 					},
-	-- 					complete={
-	-- 						sums={ { time_delta={ 0.1, nil } } }
-	-- 					},
-	-- 				}, -- vector end
-	-- 			}, -- vectors end
-	-- 		}, -- path end
-	-- 	}, -- paths end
-	-- }, -- movement end: pushup
-	-- pushup={
-	-- 	name='Push Up',
-	-- 	paths={
-	-- 		{ -- path start
-	-- 			prerequisites={
-	-- 				ranges={
-	-- 					{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
-	-- 				}, -- ranges end
-	-- 			}, -- prerequisites end
-	-- 			vectors={
-	-- 				{ -- vector start
-	-- 					ranges={
-	-- 						{ acceleration_xaxis_delta={ -0.1, nil } }
-	-- 					}, -- ranges end
-	-- 					complete={
-	-- 						sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
-	-- 					},
-	-- 				} -- vector end
-	-- 			}, -- vectors end
-	-- 		}, -- path end
-	-- 	}, -- paths end
-	-- }, -- movement end: pushup
-	-- squat={
-	-- 	name='Squat',
-	-- 	paths={
-	-- 		{ -- path start
-	-- 			prerequisites={
-	-- 				ranges={
-	-- 					{ acceleration_xaxis_abs={ 0.9, 1.1 }, acceleration_yaxis_abs={ 0, 0.1 }, acceleration_zaxis_abs={ 0, 0.1 } }
-	-- 				}, -- ranges end
-	-- 			}, -- prerequisites end
-	-- 			vectors={
-	-- 				{ -- vector start
-	-- 					ranges={
-	-- 						{ acceleration_xaxis_delta={ -0.1, nil } }
-	-- 					}, -- ranges end
-	-- 					complete={
-	-- 						sums={ { acceleration_xaxis_delta_abs={ 1.0, nil }, acceleration_yaxis_delta_abs={ 0.0, 0.1 }, acceleration_zaxis_delta_abs={ 0.0, 0.1 } } }
-	-- 					},
-	-- 				} -- vector end
-	-- 			}, -- vectors end
-	-- 		}, -- path end
-	-- 	}, -- paths end
-	-- }, -- movement end: squat
+	--pushup={
+	--	name='Push Up',
+	--	paths={
+	--		{ -- path 1 start
+	--			vectors={
+	--			}, -- vectors end
+	--		}, -- path 1 end
+	--	}, -- paths end
+	--}, -- movement end: push up
 }
 
 
@@ -155,79 +82,118 @@ local function dump(o)
    end
 end
 
+local function incrementDataTable( dataPoint, dataTable )
 
+	for index, dataPointAttribute in ipairs(DATA_POINT_NUMERIC_ATTRIBUTES) do
+		dataTable[dataPointAttribute] = ( dataTable[dataPointAttribute] or 0.0 ) + ( dataPoint[dataPointAttribute] or 0.0 )
+	end
+	dataTable['data_point_count'] = (dataTable['data_point_count'] or 0) + 1
+
+end
 
 -- Matching Functions
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function evaluateRange( value, range )
+local function evaluateCriteria( value, criteria )
 	local match = true
 
-	if not( range[1] == nil ) then
-		match = match and (value >= range[1])
+	if not( criteria[1] == nil ) then
+		match = match and (value >= criteria[1])
 	end
 
-	if not( range[2] == nil ) then
-		match = match and (value <= range[2])
-	end
-
-	-- print( 'evaluateRange', value, dump( range ), dump( match ) )
-
-	return match
-end
-
-
-local function matchDataPoint( dataPoint, ranges )
-	local match = true
-
-	for attribute,value in pairs( ranges ) do
-		-- print( '    -> attribute', attribute )
-		local abs = string.ends( attribute, '_abs' )
-
-		if abs then
-			attribute = string.sub( attribute, 0, -5 )
-		end
-
-
-		local dataPointAttributeValue = dataPoint[attribute]
-		if abs then
-			dataPointAttributeValue = math.abs( dataPointAttributeValue )
-		end
-
-
-		match = match and evaluateRange( dataPointAttributeValue, value )
-
+	if table.getn(criteria) == 3 and not( criteria[3] == nil ) then
+		match = match and (value <= criteria[3])
+	elseif table.getn(criteria) == 2 and not( criteria[2] == nil ) then
+		match = match and (value <= criteria[2])
 	end
 
 	return match
 end
 
+local function matchStateAttribute( state, attribute, criteria )
 
-local function matchDataPointToMovementPaths( dataPoint, movement )
+	-- Extract Modifiers
+	local abs = string.ends( attribute, '_abs' )
+	if abs then
+		attribute = string.sub( attribute, 0, -5 )
+	end
+
+	-- Extract Scope
+	local instance_scope = string.starts( attribute, 'instance_' )
+	-- local vector_scope = string.starts( attribute, 'vector_' )
+	local state_scope = state['vector']
+	if instance_scope then
+		state_scope = state['instance']
+		attribute = string.sub( attribute, 10, -1 )
+	else
+		attribute = string.sub( attribute, 8, -1 )
+	end
+
+	-- Get Value, and apply modifiers
+	local stateValue = state_scope[attribute]
+	if abs then
+		stateValue = math.abs( stateValue )
+	end
+
+	-- evaluate criteria against specified value
+	return evaluateCriteria( stateValue, criteria )
+end
+
+
+local function matchState( state, allCriteria )
+	local match = true
+
+	-- Match all attribute's criteria
+	for attribute,criteria in pairs( allCriteria ) do
+		match = match and matchStateAttribute( state, attribute, criteria )
+	end
+
+	return match
+end
+
+
+local function findMatchingMovementPaths( dataPoint, movement )
 	local paths = false
 
 	for path_index, path in ipairs( movement['paths'] ) do
-		local matches = false
-		if path['prerequisites']['ranges'] then
+		-- path matches if dataPoint matches the start criteria of it's first vector
+		local firstVector = path['vectors'][1]
+		local criteria = firstVector.trigger or firstVector.transition
 
-			for range_index, range in ipairs( path['prerequisites']['ranges'] ) do
-				matches = matches or matchDataPoint( dataPoint, range )
-			end
-
-		end
-
-		if matches then
+		if matchState( { instance=dataPoint, vector=dataPoint, path=dataPoint }, criteria ) then
 			paths = paths or {}
 			table.insert( paths, path )
 		end
-
 	end
 
 	return paths
 end
 
 
+
+-- Vector Functions
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
+local function vectorIsViable( activeMovement, pathState, currentVector, dataPoint )
+	local timeWindowEnded = not( currentVector['destination']['vector_time_delta'][2] == nil ) and pathState['vectorData']['time_delta'] >= currentVector['destination']['vector_time_delta'][2]
+
+	return not( timeWindowEnded ) and matchState( { instance=dataPoint, vector=pathState.vectorData, path=activeMovement.data }, currentVector.transition )
+end
+
+local function vectorIsComplete( activeMovement, pathState, currentVector, dataPoint )
+
+
+	-- determine if this path is still valid - by seeing if the vector has hit it's target before it expires.
+	-- @todo replace with an algorithm which charts the vector and determines if it's progressing along the vector within a margin of error
+	-- local timeWindowOpened = pathState['vectorData']['time_delta'] >= currentVector['vector']['vector_time_delta'][1]
+
+	local vectorHitTarget = matchState( { instance=dataPoint, vector=pathState.vectorData, path=activeMovement.data }, currentVector.destination )
+
+	return vectorHitTarget
+end
 
 -- Public Functions
 --------------------------------------------------------------------------------
@@ -243,100 +209,70 @@ end
 
 local function newActiveMovement( dataPoint, movement )
 
+	local movementData = {}
+	incrementDataTable( dataPoint, movementData )
+
 	local activeMovement = {
-		dataPoints={},
 		pathStates={},
-		sums={
-			data_point_count=1
-		},
 		movement=movement,
 		complete=false,
 		status='started',
+		data=movementData
 	}
 
-
-	local activePaths = matchDataPointToMovementPaths( dataPoint, movement )
-
+	local activePaths = findMatchingMovementPaths( dataPoint, movement )
 
 	for index, activePath in ipairs(activePaths) do
-		local pathState = { path=activePath, vector=1, complete=false }
+		local newVectorData = {}
+		incrementDataTable( dataPoint, newVectorData )
 
+		local pathState = { path=activePath, vectorIndex=1, complete=false, vectorData=newVectorData }
 		table.insert( activeMovement['pathStates'], pathState )
-		-- print( dataPointAttribute, activeMovement['sums'][dataPointAttribute] )
 	end
-
-	for index, dataPointAttribute in ipairs(DATA_POINT_NUMERIC_ATTRIBUTES) do
-		activeMovement['sums'][dataPointAttribute] = ( dataPoint[dataPointAttribute] or 0.0 )
-		-- print( dataPointAttribute, activeMovement['sums'][dataPointAttribute] )
-	end
-
-	table.insert( activeMovement['dataPoints'], dataPoint )
 
 	return activeMovement
 end
 
 local function updateActiveMovement( dataPoint, activeMovement )
 
-	-- update running sums
-	for index, dataPointAttribute in ipairs(DATA_POINT_NUMERIC_ATTRIBUTES) do
-		activeMovement['sums'][dataPointAttribute] = activeMovement['sums'][dataPointAttribute] + ( dataPoint[dataPointAttribute] or 0.0 )
-	end
-
-	activeMovement['sums']['data_point_count'] = activeMovement['sums']['data_point_count'] + 1
-
-	-- add new data point
-	table.insert( activeMovement['dataPoints'], dataPoint )
+	-- update running sums for movement
+	incrementDataTable( dataPoint, activeMovement.data )
 
 	-- determine which paths are still in use
 	local remainingPathStates = {}
 	for pathStateIndex, pathState in ipairs(activeMovement['pathStates']) do
 		local currentPath = pathState['path']
-		local currentVector = currentPath['vectors'][pathState['vector']]
+		local currentPathVectors = currentPath['vectors']
+		local currentVector = currentPathVectors[pathState.vectorIndex]
+		local isLastVector = ( pathState.vectorIndex == table.getn( currentPathVectors ) )
 
-		-- test if data point meets vector range requirements
-		local rangeMatch = true
-		if currentVector['ranges'] then
-			rangeMatch = false
-			for index, range in ipairs(currentVector['ranges']) do
-				rangeMatch = rangeMatch or matchDataPoint( dataPoint, range )
-			end
-		end
+		-- update running sums for path
+		incrementDataTable( dataPoint, pathState.vectorData )
 
-		local vectorMatch = true
-		-- @todo test if the added data point completes the vector or disqualifies it
+		local isViable = vectorIsViable( activeMovement, pathState, currentVector, dataPoint )
+		local isComplete = vectorIsComplete( activeMovement, pathState, currentVector, dataPoint )
 
-		local complete = false
-		if currentVector['complete'] then
-
-			local sumsMatch = false
-			if currentVector['complete']['sums'] then
-				for index, sum in ipairs( currentVector['complete']['sums'] ) do
-					sumsMatch = sumsMatch or matchDataPoint( activeMovement['sums'], sum )
-				end
-			end
-
-			complete = sumsMatch
-		end
-
-		pathState['complete'] = pathState['complete'] or complete
-		activeMovement['qualified'] = activeMovement['qualified'] or complete
-
-		if rangeMatch and vectorMatch then
+		if isViable or isComplete then
 			table.insert( remainingPathStates, pathState )
-		elseif pathState['complete'] then
-			activeMovement['complete'] = true
 		end
 
+		if isComplete and isLastVector then
+			activeMovement['qualified'] = true
+		elseif isComplete and not( isLastVector ) then
+			pathState.vectorIndex = pathState.vectorIndex + 1
+
+			-- reset vector data
+			pathState['vectorData'] = {}
+			incrementDataTable( dataPoint, pathState['vectorData'] )
+		end
 	end
 
 	activeMovement['pathStates'] = remainingPathStates
 
-	if activeMovement['complete'] then
+	if activeMovement['qualified'] and table.getn( remainingPathStates ) == 0 then
 		activeMovement['status'] = 'completed' -- rep is complete
 	elseif activeMovement['qualified'] then
 		activeMovement['status'] = 'qualified' -- rep is complete, but still active
-	-- elseif  then
-	--	activeMovement['status'] = 'verified' -- movement is verified
 	elseif table.getn( activeMovement['pathStates'] ) == 0 then
 		activeMovement['status'] = 'failed' -- movement has started, but has not been verified
 	end
@@ -347,7 +283,7 @@ local function updateActiveMovement( dataPoint, activeMovement )
 end
 
 local function meetsMovementStartCriteria( dataPoint, movement )
-	local activePaths = matchDataPointToMovementPaths( dataPoint, movement )
+	local activePaths = findMatchingMovementPaths( dataPoint, movement )
 	return activePaths and table.getn( activePaths ) > 0
 end
 

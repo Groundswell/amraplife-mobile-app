@@ -262,10 +262,8 @@ function processDataPointForMovement( dataPoint )
 		elseif activeMovement['status'] == 'failed' then
 			print( 'discard ' .. movement_key )
 		elseif activeMovement['status'] == 'qualified' then
-			print( 'qualified!!! keep ' .. movement_key )
 			remainingActiveMovements[movement_key] = activeMovement
 		else
-			print( 'keep ' .. movement_key )
 			remainingActiveMovements[movement_key] = activeMovement
 		end
 
