@@ -52,15 +52,54 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: plank
-	--pushup={
-	--	name='Push Up',
-	--	paths={
-	--		{ -- path 1 start
-	--			vectors={
-	--			}, -- vectors end
-	--		}, -- path 1 end
-	--	}, -- paths end
-	--}, -- movement end: push up
+	pushup={
+		name='Push Up',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start - laydown static position
+						transition={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.1, nil },
+						},
+					}, -- vector 1 end - laydown static position
+					{ -- vector 2 start - push up
+						transition={ -- accelerate up
+							instance_acceleration_xaxis_abs={ 0.4, 1.1 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							vector_time_delta={ 0.0, 3.0 },
+						},
+						destination={ -- stop in plank
+							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
+							vector_time_delta={ 0.0, nil },
+						},
+					}, -- vector 2 end - push up
+					{ -- vector 3 start - plank
+						transition={
+							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.0, nil },
+						},
+					} -- vector 3 end - plank
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: push up
 }
 
 
@@ -180,7 +219,12 @@ end
 local function vectorIsViable( activeMovement, pathState, currentVector, dataPoint )
 	local timeWindowEnded = not( currentVector['destination']['vector_time_delta'][2] == nil ) and pathState['vectorData']['time_delta'] >= currentVector['destination']['vector_time_delta'][2]
 
-	return not( timeWindowEnded ) and matchState( { instance=dataPoint, vector=pathState.vectorData, path=activeMovement.data }, currentVector.transition )
+	local transitionValid = true
+	if currentVector.transition then
+		transitionValid = matchState( { instance=dataPoint, vector=pathState.vectorData, path=activeMovement.data }, currentVector.transition )
+	end
+
+	return not( timeWindowEnded ) and transitionValid
 end
 
 local function vectorIsComplete( activeMovement, pathState, currentVector, dataPoint )
@@ -244,26 +288,50 @@ local function updateActiveMovement( dataPoint, activeMovement )
 		local currentPath = pathState['path']
 		local currentPathVectors = currentPath['vectors']
 		local currentVector = currentPathVectors[pathState.vectorIndex]
-		local isLastVector = ( pathState.vectorIndex == table.getn( currentPathVectors ) )
+		local nextVector = currentPathVectors[pathState.vectorIndex+1]
+		local isLastVector = (nextVector == nil)
 
 		-- update running sums for path
 		incrementDataTable( dataPoint, pathState.vectorData )
 
 		local isViable = vectorIsViable( activeMovement, pathState, currentVector, dataPoint )
 		local isComplete = vectorIsComplete( activeMovement, pathState, currentVector, dataPoint )
+		local pathRemains = (isViable or isComplete)
+		local incrementVector = false
+		local wasComplete = false
 
-		if isViable or isComplete then
-			table.insert( remainingPathStates, pathState )
+		if isComplete then
+			pathState['lastCompletedVectorIndex'] = pathState.vectorIndex
+		elseif pathState['lastCompletedVectorIndex'] == pathState.vectorIndex then
+			wasComplete = true
 		end
 
 		if isComplete and isLastVector then
 			activeMovement['qualified'] = true
-		elseif isComplete and not( isLastVector ) then
+		elseif ( wasComplete or isComplete ) and not( isLastVector ) then
+			-- if was complete, but is not longer, check to see if the next vector
+			-- matches, if so move to it.
+			-- if wasComplete then
+			-- 	print( dump( dataPoint ) )
+			-- end
+
+			incrementVector = matchState( { instance=dataPoint, vector=dataPoint, path=activeMovement.data }, ( nextVector.trigger or nextVector.transition ) )
+		end
+
+
+		-- print( activeMovement.movement.name, pathState.vectorIndex, 'wasComplete', dump(wasComplete), 'isComplete', dump(isComplete), 'isLastVector', dump(isLastVector), 'pathRemains', dump(pathRemains), 'incrementVector', dump(incrementVector) )
+
+
+		if incrementVector then
 			pathState.vectorIndex = pathState.vectorIndex + 1
 
 			-- reset vector data
 			pathState['vectorData'] = {}
 			incrementDataTable( dataPoint, pathState['vectorData'] )
+		end
+
+		if pathRemains or incrementVector then
+			table.insert( remainingPathStates, pathState )
 		end
 	end
 

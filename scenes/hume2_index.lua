@@ -33,6 +33,7 @@ local GRAVITY_METERS_PER_SECOND = 9.8
 
 local ui = {}
 local activeMovements = {}
+local completedMovements = {}
 
 local angularVelocityXAxis = 0.0
 local angularVelocityYAxis = 0.0
@@ -47,6 +48,15 @@ local timeDeltaSum = 0
 ---------------------------------------------------------------------------------
 -- Data Processing
 ---------------------------------------------------------------------------------
+
+function formatNum( num, numDecimalPlaces )
+	numDecimalPlaces = numDecimalPlaces or 3
+	rnum = tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+	if rnum >= 0 then
+		rnum = '+' .. rnum
+	end
+	return rnum
+end
 
 function dump(o)
    if type(o) == 'table' then
@@ -76,6 +86,7 @@ function hume2Start()
 	timeDeltaSum = 0
 
 	activeMovements = {}
+	completedMovements = {}
 
 	if Device.isSimulator then
 		Runtime:addEventListener( "enterFrame", hume2AccelerometerMonitorSimulator )
@@ -195,17 +206,31 @@ function hume2AccelerometerMonitor( event )
 
 	-- print( dumpDataPoint(dataPoint) )
 
-	local movementListStr = '' .. event.xGravity .. "\n" .. event.yGravity .. "\n" .. event.zGravity .. "\n"
+	local movementListStr = '' .. formatNum( event.xGravity ) .. "\n" .. formatNum( event.yGravity ) .. "\n" .. formatNum( event.zGravity ) .. "\n"
+	movementListStr = movementListStr .. formatNum( dataPoint.acceleration_xaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_yaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_zaxis_delta_sum ) .. "\n"
 
 	movementListStr = movementListStr .. "movements:\n"
 	for movement_key, movement in pairs(MovementService.all()) do
-		movementListStr = movementListStr .. movement_key .. " - "
+		movementListStr = movementListStr .. movement_key .. " | "
 		if activeMovements[movement_key] then
-			movementListStr = movementListStr .. activeMovements[movement_key]['status'] .. "\n"
+			movementListStr = movementListStr .. activeMovements[movement_key]['status'] .. " | "
+
+			for pathStateKey, pathState in pairs(activeMovements[movement_key].pathStates) do
+				movementListStr = movementListStr .. pathState.vectorIndex .. " | "
+			end
+
+			movementListStr = movementListStr .. "\n"
+
 		else
-			movementListStr = movementListStr .. "none\n"
+			movementListStr = movementListStr .. "none | \n"
 		end
 	end
+
+	for index, movementName in ipairs(completedMovements) do
+		local reverseIndex = table.getn(completedMovements) - index + 1
+		movementListStr = movementListStr .. reverseIndex .. ":" .. completedMovements[reverseIndex] .. "\n"
+	end
+
 
 	if ui then
 		ui.movements.text = movementListStr
@@ -258,6 +283,7 @@ function processDataPointForMovement( dataPoint )
 
 		-- keep if there are no path states or if not complete
 		if activeMovement['status'] == 'completed' then
+			table.insert( completedMovements, activeMovement.movement.name )
 			print( 'COMPLETED!!! Moving on.' .. movement_key )
 		elseif activeMovement['status'] == 'failed' then
 			print( 'discard ' .. movement_key )
@@ -397,11 +423,12 @@ function scene:show( event )
 		hume2Start()
 
 		-- trigger laydown
-		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
-		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
-		-- processDataPointForMovement( { acceleration_xaxis=0.95, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
-		-- processDataPointForMovement( { acceleration_xaxis=0.01, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
-		-- processDataPointForMovement( { acceleration_xaxis=0.01, acceleration_yaxis=-0.001, acceleration_zaxis=0.001, time_delta=0.5 } )
+
+		-- hume2AccelerometerMonitor( { xGravity=-0.95, yGravity=-0.001, zGravity=0.001, deltaTime=0.01 } )
+		-- hume2AccelerometerMonitor( { xGravity=-0.95, yGravity=-0.001, zGravity=0.001, deltaTime=0.5 } )
+		-- hume2AccelerometerMonitor( { xGravity=-0.95, yGravity=-0.001, zGravity=0.001, deltaTime=0.01 } )
+		-- hume2AccelerometerMonitor( { xGravity=-0.9, yGravity=-0.001, zGravity=0.001, deltaTime=0.01 } )
+		-- hume2AccelerometerMonitor( { xGravity=-0.7, yGravity=-0.001, zGravity=0.001, deltaTime=0.01 } )
 
 	end
 
