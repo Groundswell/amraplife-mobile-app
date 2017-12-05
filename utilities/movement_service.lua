@@ -67,13 +67,15 @@ local movements = {
 							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
 							instance_acceleration_yaxis_abs={ 0, 0.1 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.1, nil },
+							vector_time_delta={ 0.00, nil },
 						},
 					}, -- vector 1 end - laydown static position
 					{ -- vector 2 start - push up
-						transition={ -- accelerate up
+						trigger={ -- start when leaves laydown
 							instance_acceleration_xaxis_abs={ 0.4, 1.1 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+						},
+						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
 							vector_time_delta={ 0.0, 3.0 },
 						},
 						destination={ -- stop in plank
@@ -100,6 +102,78 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: push up
+	standing={
+		name='Standing',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis_abs={ 0.95, 1.05 },
+							instance_acceleration_zaxis_abs={ 0, 0.1 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis_abs={ 0.95, 1.05 },
+							instance_acceleration_zaxis_abs={ 0, 0.1 },
+							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
+						},
+					} -- vector 1 end
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: standing
+	airSquat={
+		name='Air Squat',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.1 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.1 },
+							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
+						},
+					}, -- vector 1 end
+					{ -- vector 2 start - down
+						trigger={ -- start when leaves laydown
+							instance_acceleration_yaxis={ -1.8, -1.05 },
+						},
+						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
+							instance_acceleration_yaxis={ -1.8, -0.98 },
+							vector_time_delta={ 0.1, 5.0 },
+						},
+						destination={ -- bottom squat
+							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_yaxis={ -0.98, -0.7 },
+							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
+							vector_time_delta={ 0.1, nil },
+						},
+					}, -- vector 2 end - down
+					{ -- vector 3 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_yaxis={ -0.98, -0.7 },
+							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_yaxis={ -0.98, -0.7 },
+							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
+							vector_time_delta={ 0.0, nil },
+						},
+					}, -- vector 3 end
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: Air Squat
 }
 
 
