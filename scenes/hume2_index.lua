@@ -45,6 +45,14 @@ local timeDelta = 0.0
 local timeStart = nil
 local timeDeltaSum = 0
 
+local movementAudio = {
+}
+for movementKey, movement in pairs(MovementService.all()) do
+	movementAudio[movementKey] = audio.loadSound( 'assets/audio/movements/' .. movementKey .. '.mp3' )
+end
+
+
+
 ---------------------------------------------------------------------------------
 -- Data Processing
 ---------------------------------------------------------------------------------
@@ -74,6 +82,7 @@ end
 
 function hume2Start()
 	print( "hume2Start()" )
+	system.setIdleTimer( false )
 
 	angularVelocityXAxis = 0.0
 	angularVelocityYAxis = 0.0
@@ -102,6 +111,7 @@ end
 
 function hume2Stop()
 	print( "hume2Stop()" )
+	system.setIdleTimer( false )
 	Runtime:removeEventListener( "accelerometer", hume2AccelerometerMonitor )
 	Runtime:removeEventListener( "gyroscope", hume2GyroscopeMonitor )
 
@@ -200,20 +210,24 @@ function hume2AccelerometerMonitor( event )
 	dataPoint['angular_velocity_xaxis']			= angularVelocityXAxis
 	dataPoint['angular_velocity_yaxis']			= angularVelocityYAxis
 	dataPoint['angular_velocity_zaxis']			= angularVelocityZAxis
+	dataPoint['tags']							= {}
 	-- dataPoint['angle_xaxis']				= angle_xaxis
 	-- dataPoint['angle_yaxis']				= angle_yaxis
 	-- dataPoint['angle_zaxis']				= angle_zaxis
 
 	-- print( dumpDataPoint(dataPoint) )
 
-	local movementListStr = '' .. formatNum( event.xGravity ) .. "\n" .. formatNum( event.yGravity ) .. "\n" .. formatNum( event.zGravity ) .. "\n"
+	local movementListStr = '' .. formatNum( accelerationXAxis ) .. "\n" .. formatNum( accelerationYAxis ) .. "\n" .. formatNum( accelerationZAxis ) .. "\n"
 	movementListStr = movementListStr .. formatNum( dataPoint.acceleration_xaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_yaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_zaxis_delta_sum ) .. "\n"
 
 	movementListStr = movementListStr .. "movements:\n"
 	for movement_key, movement in pairs(MovementService.all()) do
 		movementListStr = movementListStr .. movement_key .. " | "
 		if activeMovements[movement_key] then
-			movementListStr = movementListStr .. activeMovements[movement_key]['status'] .. " | "
+			local movementStatus = activeMovements[movement_key]['status']
+			movementListStr = movementListStr .. movementStatus .. " | "
+
+			table.insert( dataPoint.tags, movement_key .. "-" .. movementStatus )
 
 			for pathStateKey, pathState in pairs(activeMovements[movement_key].pathStates) do
 				movementListStr = movementListStr .. pathState.vectorIndex .. " | "
@@ -238,7 +252,7 @@ function hume2AccelerometerMonitor( event )
 
 	lastDataPoint = dataPoint
 
-	-- table.insert(dataPointCache, dataPoint)
+	-- table.insert(dataPointCache, dataPoint) -- uncomment to send data to server
 
 	if table.getn(dataPointCache) >= MAX_DATA_POINT_CACHE_SIZE then
 
@@ -289,6 +303,11 @@ function processDataPointForMovement( dataPoint )
 			print( 'discard ' .. movement_key )
 		elseif activeMovement['status'] == 'qualified' then
 			remainingActiveMovements[movement_key] = activeMovement
+
+			if not( activeMovement.firstQualified ) then
+				activeMovement.firstQualified = true
+				audio.play( movementAudio[movement_key] )
+			end
 		else
 			remainingActiveMovements[movement_key] = activeMovement
 		end
