@@ -8,6 +8,56 @@ local DATA_POINT_NUMERIC_ATTRIBUTES = { 'time_delta','acceleration_xaxis','accel
 --------------------------------------------------------------------------------
 
 local movements = {
+	airSquat={
+		name='Air Squat',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.2 },
+							instance_acceleration_yaxis={ -1.01, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.2 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.2 },
+							instance_acceleration_yaxis={ -1.01, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.2 },
+							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
+						},
+					}, -- vector 1 end
+					{ -- vector 2 start - down
+						trigger={ -- start when leaves laydown
+							instance_acceleration_yaxis={ -1.8, -1.01 },
+						},
+						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
+							instance_acceleration_yaxis={ -1.8, -0.95 },
+							vector_time_delta={ 0.1, 5.0 },
+						},
+						destination={ -- bottom squat
+							instance_acceleration_xaxis_abs={ 0, 0.35 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.1, nil },
+						},
+					}, -- vector 2 end - down
+					{ -- vector 3 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.35 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.35 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.0, nil }, -- complete after holding for at least 1 second
+						},
+					}, -- vector 3 end
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: Air Squat
 	laydown={
 		name='Laydown',
 		paths={
@@ -37,12 +87,12 @@ local movements = {
 				vectors={
 					{ -- vector 1 start
 						transition={
-							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
 						destination={
-							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
@@ -52,19 +102,19 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: plank
-	pushup={
+	pushUp={
 		name='Push Up',
 		paths={
 			{ -- path 1 start
 				vectors={
 					{ -- vector 1 start - laydown static position
 						transition={
-							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_xaxis={ 0.9, 1.1 },
 							instance_acceleration_yaxis_abs={ 0, 0.1 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
 						destination={
-							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_xaxis={ 0.9, 1.1 },
 							instance_acceleration_yaxis_abs={ 0, 0.1 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 							vector_time_delta={ 0.00, nil },
@@ -72,14 +122,14 @@ local movements = {
 					}, -- vector 1 end - laydown static position
 					{ -- vector 2 start - push up
 						trigger={ -- start when leaves laydown
-							instance_acceleration_xaxis_abs={ 0.4, 1.1 },
+							instance_acceleration_xaxis={ 0.4, 1.1 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 						},
 						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
 							vector_time_delta={ 0.0, 3.0 },
 						},
 						destination={ -- stop in plank
-							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
 							vector_time_delta={ 0.0, nil },
@@ -87,12 +137,12 @@ local movements = {
 					}, -- vector 2 end - push up
 					{ -- vector 3 start - plank
 						transition={
-							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
 						destination={
-							instance_acceleration_xaxis_abs={ 0.85, 0.98 },
+							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 							vector_time_delta={ 0.0, nil },
@@ -102,6 +152,92 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: push up
+	sitUp={
+		name='Sit Up',
+		paths={
+			{ -- path 1 start
+				vectors={
+					-- { -- vector 1 start - laydown static position
+					-- 	transition={
+					-- 		instance_acceleration_xaxis={ -1.1, -0.9 },
+					-- 		instance_acceleration_yaxis_abs={ 0, 0.1 },
+					-- 		instance_acceleration_zaxis_abs={ 0, 0.35 },
+					-- 	},
+					-- 	destination={
+					-- 		instance_acceleration_xaxis={ -1.1, -0.9 },
+					-- 		instance_acceleration_yaxis_abs={ 0, 0.1 },
+					-- 		instance_acceleration_zaxis_abs={ 0, 0.35 },
+					-- 		vector_time_delta={ 0.00, nil },
+					-- 	},
+					-- }, -- vector 1 end - laydown static position
+					-- { -- vector 2 start - sitting up
+					-- 	trigger={ -- start when leaves laydown
+					-- 		instance_acceleration_xaxis={ -1.1, -0.4 },
+					-- 		instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+					-- 	},
+					-- 	transition={ -- then I don't care as long as you get to situp in less than 3 seconds
+					-- 		vector_time_delta={ 0.0, 3.0 },
+					-- 	},
+					-- 	destination={ -- stop in seated position
+					-- 		instance_acceleration_xaxis={ -0.98, -0.85 },
+					-- 		instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+					-- 		instance_acceleration_zaxis_abs={ 0.0, 0.35 },
+					-- 		vector_time_delta={ 0.0, nil },
+					-- 	},
+					-- }, -- vector 2 end - sitting up
+					-- { -- vector 3 start - seated position
+					-- 	transition={
+					-- 		instance_acceleration_xaxis={ -0.98, -0.85 },
+					-- 		instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+					-- 		instance_acceleration_zaxis_abs={ 0, 0.35 },
+					-- 	},
+					-- 	destination={
+					-- 		instance_acceleration_xaxis={ -0.98, -0.85 },
+					-- 		instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+					-- 		instance_acceleration_zaxis_abs={ 0, 0.35 },
+					-- 		vector_time_delta={ 0.0, nil },
+					-- 	},
+					-- } -- vector 3 end - seated position
+					{ -- vector 1 start - laydown
+						transition={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
+							instance_acceleration_yaxis_abs={ 0, 0.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.0, nil },
+						},
+					}, -- vector 1 end - laydown
+					{ -- vector 2 start - sitting up
+						transition={
+							vector_time_delta={ 0.0, 5.0 },
+							instance_acceleration_yaxis_abs={ 0.1, 1.05 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis_abs={ 0.9, 1.05 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.0, 5.0 },
+						},
+					}, -- vector 2 end - sitting up
+					-- { -- vector 3 start - sitting forward
+					-- 	transition={
+					-- 		vector_time_delta={ 0.00, 0.5 },
+					-- 	},
+					-- 	destination={
+					-- 		instance_acceleration_xaxis_abs={ 0.1, 0.2 },
+					-- 		instance_acceleration_yaxis_abs={ 0.7, 0.95 },
+					-- 		instance_acceleration_zaxis_abs={ 0, 0.2 },
+					-- 		vector_time_delta={ 0.00, 0.5 },
+					-- 	},
+					-- }, -- vector 3 end - sitting forward
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: sit up
 	standing={
 		name='Standing',
 		paths={
@@ -110,13 +246,13 @@ local movements = {
 					{ -- vector 1 start
 						transition={
 							instance_acceleration_xaxis_abs={ 0, 0.1 },
-							instance_acceleration_yaxis_abs={ 0.95, 1.05 },
-							instance_acceleration_zaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis={ -1.1, -0.9 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
 						destination={
 							instance_acceleration_xaxis_abs={ 0, 0.1 },
-							instance_acceleration_yaxis_abs={ 0.95, 1.05 },
-							instance_acceleration_zaxis_abs={ 0, 0.1 },
+							instance_acceleration_yaxis={ -1.1, -0.9 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
 							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
 						},
 					} -- vector 1 end
@@ -124,56 +260,6 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: standing
-	airSquat={
-		name='Air Squat',
-		paths={
-			{ -- path 1 start
-				vectors={
-					{ -- vector 1 start
-						transition={
-							instance_acceleration_xaxis_abs={ 0, 0.1 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
-							instance_acceleration_zaxis_abs={ 0, 0.1 },
-						},
-						destination={
-							instance_acceleration_xaxis_abs={ 0, 0.1 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
-							instance_acceleration_zaxis_abs={ 0, 0.1 },
-							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
-						},
-					}, -- vector 1 end
-					{ -- vector 2 start - down
-						trigger={ -- start when leaves laydown
-							instance_acceleration_yaxis={ -1.8, -1.05 },
-						},
-						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
-							instance_acceleration_yaxis={ -1.8, -0.98 },
-							vector_time_delta={ 0.1, 5.0 },
-						},
-						destination={ -- bottom squat
-							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
-							instance_acceleration_yaxis={ -0.98, -0.7 },
-							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
-							vector_time_delta={ 0.1, nil },
-						},
-					}, -- vector 2 end - down
-					{ -- vector 3 start
-						transition={
-							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
-							instance_acceleration_yaxis={ -0.98, -0.7 },
-							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
-						},
-						destination={
-							instance_acceleration_xaxis_abs={ 0.1, 0.45 },
-							instance_acceleration_yaxis={ -0.98, -0.7 },
-							instance_acceleration_zaxis_abs={ 0.0, 0.35 },
-							vector_time_delta={ 0.0, nil },
-						},
-					}, -- vector 3 end
-				}, -- vectors end
-			}, -- path 1 end
-		}, -- paths end
-	}, -- movement end: Air Squat
 }
 
 
