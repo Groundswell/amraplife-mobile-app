@@ -7,6 +7,23 @@ local DATA_POINT_NUMERIC_ATTRIBUTES = { 'time_delta','acceleration_xaxis','accel
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+-- @todo standUp (from laydown)
+-- @todo jump (from standing)
+-- @todo burpee
+-- @todo box jump
+-- @todo lunge
+-- @todo l-sit
+-- @todo russian twist
+-- @todo wall sit
+-- @todo hollow rock
+-- @todo superman
+-- @todo toe touch
+-- @todo down dog push up / pike push up
+
+-- @todo pull up, strict
+-- @todo pull up, kipping
+-- @todo muscle up
+
 local movements = {
 	airSquat={
 		name='Air Squat',
@@ -16,48 +33,68 @@ local movements = {
 					{ -- vector 1 start
 						transition={
 							instance_acceleration_xaxis_abs={ 0, 0.2 },
-							instance_acceleration_yaxis={ -1.01, -0.95 },
+							instance_acceleration_yaxis={ -1.05, -0.95 },
 							instance_acceleration_zaxis_abs={ 0, 0.2 },
 						},
 						destination={
 							instance_acceleration_xaxis_abs={ 0, 0.2 },
-							instance_acceleration_yaxis={ -1.01, -0.95 },
-							instance_acceleration_zaxis_abs={ 0, 0.2 },
-							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
-						},
-					}, -- vector 1 end
-					{ -- vector 2 start - down
-						trigger={ -- start when leaves laydown
-							instance_acceleration_yaxis={ -1.8, -1.01 },
-						},
-						transition={ -- then I don't care as long as you get to plank in less than 3 seconds
-							instance_acceleration_yaxis={ -1.8, -0.95 },
-							vector_time_delta={ 0.1, 5.0 },
-						},
-						destination={ -- bottom squat
-							instance_acceleration_xaxis_abs={ 0, 0.35 },
 							instance_acceleration_yaxis={ -1.05, -0.95 },
-							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							instance_acceleration_zaxis_abs={ 0, 0.2 },
 							vector_time_delta={ 0.1, nil },
 						},
-					}, -- vector 2 end - down
-					{ -- vector 3 start
+					}, -- vector 1 end
+					{ -- vector 2 start - squat
 						transition={
-							instance_acceleration_xaxis_abs={ 0, 0.35 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
-							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							--instance_acceleration_xaxis={ 0.05, 0.8 },
+							vector_time_delta={ 0.0, 3.0 },
 						},
-						destination={
-							instance_acceleration_xaxis_abs={ 0, 0.35 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
+						destination={ -- bottom squat
+							instance_acceleration_xaxis={ 0.6, 0.8 },
+							instance_acceleration_yaxis={ -0.7, -0.4 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.0, nil }, -- complete after holding for at least 1 second
+							vector_time_delta={ 0.0, nil },
 						},
-					}, -- vector 3 end
+					}, -- vector 2 end - squat
 				}, -- vectors end
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: Air Squat
+	jump={
+		name='Jump', -- @todo
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.3 },
+							instance_acceleration_yaxis={ -1.2, -0.6 },
+							instance_acceleration_zaxis_abs={ 0, 0.3 },
+						},
+						destination={
+							instance_acceleration_xaxis_abs={ 0, 0.3 },
+							instance_acceleration_yaxis={ -1.2, -0.6 },
+							instance_acceleration_zaxis_abs={ 0, 0.3 },
+							vector_time_delta={ 0.0, nil },
+						},
+					}, -- vector 1 end
+					{ -- vector 2 start - takeoff
+						transition={
+							instance_acceleration_xaxis_abs={ 0, 0.3 },
+							instance_acceleration_yaxis={ -0.6, 1.1 },
+							instance_acceleration_zaxis_abs={ 0, 0.3 },
+							vector_time_delta={ -0.5, 1.0 },
+						},
+						destination={ -- bottom squat
+							instance_acceleration_xaxis={ 0.0, 0.3 },
+							instance_acceleration_yaxis={ -0.05, 0.05 },
+							instance_acceleration_zaxis_abs={ 0, 0.3 },
+							vector_time_delta={ 0.0, nil },
+						},
+					}, -- vector 2 end - takeoff
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: jump
 	laydown={
 		name='Laydown',
 		paths={
@@ -73,7 +110,7 @@ local movements = {
 							instance_acceleration_xaxis_abs={ 0.9, 1.1 },
 							instance_acceleration_yaxis_abs={ 0, 0.1 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
+							vector_time_delta={ 0.2, nil }, -- complete after holding for at least 1 second
 						},
 					} -- vector 1 end
 				}, -- vectors end
@@ -95,7 +132,7 @@ local movements = {
 							instance_acceleration_xaxis={ 0.85, 0.98 },
 							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.5, nil }, -- complete after holding for at least 1 second
+							vector_time_delta={ 0.2, nil }, -- complete after holding for at least 1 second
 						},
 					} -- vector 1 end
 				}, -- vectors end
@@ -213,14 +250,14 @@ local movements = {
 					}, -- vector 1 end - laydown
 					{ -- vector 2 start - sitting up
 						transition={
+							instance_acceleration_yaxis_abs={ 0.05, 1.2 },
 							vector_time_delta={ 0.0, 5.0 },
-							instance_acceleration_yaxis_abs={ 0.1, 1.05 },
 						},
 						destination={
-							instance_acceleration_xaxis_abs={ 0, 0.1 },
-							instance_acceleration_yaxis_abs={ 0.9, 1.05 },
+							instance_acceleration_xaxis_abs={ 0, 0.15 },
+							instance_acceleration_yaxis_abs={ 0.8, 1.2 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.0, 5.0 },
+							vector_time_delta={ 0.0, 10.0 },
 						},
 					}, -- vector 2 end - sitting up
 					-- { -- vector 3 start - sitting forward
@@ -238,8 +275,30 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: sit up
-	standing={
-		name='Standing',
+	squat={
+		name='Squat',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 3 start - bottom squat
+						transition={
+							instance_acceleration_xaxis={ 0.6, 0.8 },
+							instance_acceleration_yaxis={ -0.7, -0.5 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis={ 0.6, 0.8 },
+							instance_acceleration_yaxis={ -0.7, -0.5 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.2, nil },
+						},
+					}, -- vector 3 end - bottom squat
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: Squat
+	upright={
+		name='Upright',
 		paths={
 			{ -- path 1 start
 				vectors={
@@ -259,7 +318,7 @@ local movements = {
 				}, -- vectors end
 			}, -- path 1 end
 		}, -- paths end
-	}, -- movement end: standing
+	}, -- movement end: upright
 }
 
 

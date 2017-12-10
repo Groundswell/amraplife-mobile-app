@@ -306,7 +306,9 @@ function processDataPointForMovement( dataPoint )
 
 			if not( activeMovement.firstQualified ) then
 				activeMovement.firstQualified = true
-				audio.play( movementAudio[movement_key] )
+				if movementAudio[movement_key] then
+					audio.play( movementAudio[movement_key] )
+				end
 			end
 		else
 			remainingActiveMovements[movement_key] = activeMovement
