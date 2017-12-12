@@ -66,6 +66,12 @@ function formatNum( num, numDecimalPlaces )
 	return rnum
 end
 
+function roundNum( num, numDecimalPlaces )
+	numDecimalPlaces = numDecimalPlaces or 3
+	rnum = tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
+	return rnum
+end
+
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -150,6 +156,7 @@ end
 
 function hume2AccelerometerMonitor( event )
 	-- print( "hume2AccelerometerMonitor()" )
+	local kFilteringFactor = 0.5
 
 	local accelerationXAxis = event.xGravity -- positive right, negative left
 	local accelerationYAxis = event.yGravity -- positive up, negative down
@@ -173,9 +180,15 @@ function hume2AccelerometerMonitor( event )
 	dataPoint['acceleration_xaxis']				= accelerationXAxis
 	dataPoint['acceleration_yaxis']				= accelerationYAxis
 	dataPoint['acceleration_zaxis']				= accelerationZAxis
-	dataPoint['acceleration_xaxis_delta']		= accelerationXAxis - ( lastDataPoint['acceleration_xaxis'] )
-	dataPoint['acceleration_yaxis_delta']		= accelerationYAxis - ( lastDataPoint['acceleration_yaxis'] )
-	dataPoint['acceleration_zaxis_delta']		= accelerationZAxis - ( lastDataPoint['acceleration_zaxis'] )
+	dataPoint['acceleration_xaxis_delta']		= dataPoint.acceleration_xaxis - lastDataPoint.acceleration_xaxis
+	dataPoint['acceleration_yaxis_delta']		= dataPoint.acceleration_yaxis - lastDataPoint.acceleration_yaxis
+	dataPoint['acceleration_zaxis_delta']		= dataPoint.acceleration_zaxis - lastDataPoint.acceleration_zaxis
+	dataPoint['acceleration_xaxis_nr']			= roundNum( dataPoint.acceleration_xaxis * kFilteringFactor + ( 1.0 - kFilteringFactor ) * lastDataPoint.acceleration_xaxis, 4 )
+	dataPoint['acceleration_yaxis_nr']			= roundNum( dataPoint.acceleration_yaxis * kFilteringFactor + ( 1.0 - kFilteringFactor ) * lastDataPoint.acceleration_yaxis, 4 )
+	dataPoint['acceleration_zaxis_nr']			= roundNum( dataPoint.acceleration_zaxis * kFilteringFactor + ( 1.0 - kFilteringFactor ) * lastDataPoint.acceleration_zaxis, 4 )
+	dataPoint['acceleration_xaxis_nr_delta']	= dataPoint.acceleration_xaxis_nr - lastDataPoint.acceleration_xaxis_nr
+	dataPoint['acceleration_yaxis_nr_delta']	= dataPoint.acceleration_yaxis_nr - lastDataPoint.acceleration_yaxis_nr
+	dataPoint['acceleration_zaxis_nr_delta']	= dataPoint.acceleration_zaxis_nr - lastDataPoint.acceleration_zaxis_nr
 
 	dataPoint['acceleration_xaxis_delta_sum']	= 0.0
 	dataPoint['acceleration_yaxis_delta_sum']	= 0.0
@@ -184,25 +197,33 @@ function hume2AccelerometerMonitor( event )
 	dataPoint['acceleration_yaxis_delta_sum']	= lastDataPoint['acceleration_yaxis_delta_sum'] + dataPoint['acceleration_yaxis_delta']
 	dataPoint['acceleration_zaxis_delta_sum']	= lastDataPoint['acceleration_zaxis_delta_sum'] + dataPoint['acceleration_zaxis_delta']
 
-	dataPoint['acceleration_xaxis_velocity']	= 0.0
-	dataPoint['acceleration_yaxis_velocity']	= 0.0
-	dataPoint['acceleration_zaxis_velocity']	= 0.0
-	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( dataPoint['acceleration_xaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
-	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( dataPoint['acceleration_yaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
-	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( dataPoint['acceleration_zaxis_delta_sum'] * GRAVITY_METERS_PER_SECOND * timeDelta )
-	dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( ( dataPoint['acceleration_xaxis_delta_sum'] + lastDataPoint['acceleration_xaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
-	dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( ( dataPoint['acceleration_yaxis_delta_sum'] + lastDataPoint['acceleration_yaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
-	dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( ( dataPoint['acceleration_zaxis_delta_sum'] + lastDataPoint['acceleration_zaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
 
-	dataPoint['acceleration_xaxis_distance']	= 0.0
-	dataPoint['acceleration_yaxis_distance']	= 0.0
-	dataPoint['acceleration_zaxis_distance']	= 0.0
+	dataPoint['acceleration_xaxis_nr_delta_sum']	= 0.0
+	dataPoint['acceleration_yaxis_nr_delta_sum']	= 0.0
+	dataPoint['acceleration_zaxis_nr_delta_sum']	= 0.0
+	dataPoint['acceleration_xaxis_nr_delta_sum']	= lastDataPoint['acceleration_xaxis_nr_delta_sum'] + dataPoint['acceleration_xaxis_nr_delta']
+	dataPoint['acceleration_yaxis_nr_delta_sum']	= lastDataPoint['acceleration_yaxis_nr_delta_sum'] + dataPoint['acceleration_yaxis_nr_delta']
+	dataPoint['acceleration_zaxis_nr_delta_sum']	= lastDataPoint['acceleration_zaxis_nr_delta_sum'] + dataPoint['acceleration_zaxis_nr_delta']
+
+	-- dataPoint['acceleration_xaxis_velocity']	= 0.0
+	-- dataPoint['acceleration_yaxis_velocity']	= 0.0
+	-- dataPoint['acceleration_zaxis_velocity']	= 0.0
+	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( dataPoint['acceleration_xaxis_nr_delta_sum'] * timeDelta )
+	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( dataPoint['acceleration_yaxis_nr_delta_sum'] * timeDelta )
+	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( dataPoint['acceleration_zaxis_nr_delta_sum'] * timeDelta )
+	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( ( dataPoint['acceleration_xaxis_delta_sum'] + lastDataPoint['acceleration_xaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( ( dataPoint['acceleration_yaxis_delta_sum'] + lastDataPoint['acceleration_yaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( ( dataPoint['acceleration_zaxis_delta_sum'] + lastDataPoint['acceleration_zaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
+
+	-- dataPoint['acceleration_xaxis_distance']	= 0.0
+	-- dataPoint['acceleration_yaxis_distance']	= 0.0
+	-- dataPoint['acceleration_zaxis_distance']	= 0.0
 	-- dataPoint['acceleration_xaxis_distance']	= lastDataPoint['acceleration_xaxis_distance'] + ( dataPoint['acceleration_xaxis_velocity'] * timeDelta )
 	-- dataPoint['acceleration_yaxis_distance']	= lastDataPoint['acceleration_yaxis_distance'] + ( dataPoint['acceleration_yaxis_velocity'] * timeDelta )
 	-- dataPoint['acceleration_zaxis_distance']	= lastDataPoint['acceleration_zaxis_distance'] + ( dataPoint['acceleration_zaxis_velocity'] * timeDelta )
-	dataPoint['acceleration_xaxis_distance']	= lastDataPoint['acceleration_xaxis_distance'] + ( ( dataPoint['acceleration_xaxis_velocity'] + lastDataPoint['acceleration_xaxis_velocity'] ) / 2.0 * timeDelta )
-	dataPoint['acceleration_yaxis_distance']	= lastDataPoint['acceleration_yaxis_distance'] + ( ( dataPoint['acceleration_yaxis_velocity'] + lastDataPoint['acceleration_yaxis_velocity'] ) / 2.0 * timeDelta )
-	dataPoint['acceleration_zaxis_distance']	= lastDataPoint['acceleration_zaxis_distance'] + ( ( dataPoint['acceleration_zaxis_velocity'] + lastDataPoint['acceleration_zaxis_velocity'] ) / 2.0 * timeDelta )
+	-- dataPoint['acceleration_xaxis_distance']	= lastDataPoint['acceleration_xaxis_distance'] + ( ( dataPoint['acceleration_xaxis_velocity'] + lastDataPoint['acceleration_xaxis_velocity'] ) / 2.0 * timeDelta )
+	-- dataPoint['acceleration_yaxis_distance']	= lastDataPoint['acceleration_yaxis_distance'] + ( ( dataPoint['acceleration_yaxis_velocity'] + lastDataPoint['acceleration_yaxis_velocity'] ) / 2.0 * timeDelta )
+	-- dataPoint['acceleration_zaxis_distance']	= lastDataPoint['acceleration_zaxis_distance'] + ( ( dataPoint['acceleration_zaxis_velocity'] + lastDataPoint['acceleration_zaxis_velocity'] ) / 2.0 * timeDelta )
 
 	dataPoint['acceleration_xaxis_corner']		= ( lastDataPoint['acceleration_xaxis_delta'] > 0.0 and dataPoint['acceleration_xaxis_delta'] <= 0.0 ) or ( lastDataPoint['acceleration_xaxis_delta'] <= 0.0 and dataPoint['acceleration_xaxis_delta'] > 0.0 )
 	dataPoint['acceleration_yaxis_corner']		= ( lastDataPoint['acceleration_yaxis_delta'] > 0.0 and dataPoint['acceleration_yaxis_delta'] <= 0.0 ) or ( lastDataPoint['acceleration_yaxis_delta'] <= 0.0 and dataPoint['acceleration_yaxis_delta'] > 0.0 )
@@ -217,7 +238,8 @@ function hume2AccelerometerMonitor( event )
 
 	-- print( dumpDataPoint(dataPoint) )
 
-	local movementListStr = '' .. formatNum( accelerationXAxis ) .. "\n" .. formatNum( accelerationYAxis ) .. "\n" .. formatNum( accelerationZAxis ) .. "\n"
+	local movementListStr = formatNum( dataPoint.time_delta ) .. "\n"
+	movementListStr = movementListStr .. formatNum( accelerationXAxis ) .. "\n" .. formatNum( accelerationYAxis ) .. "\n" .. formatNum( accelerationZAxis ) .. "\n"
 	movementListStr = movementListStr .. formatNum( dataPoint.acceleration_xaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_yaxis_delta_sum ) .. "\n" .. formatNum( dataPoint.acceleration_zaxis_delta_sum ) .. "\n"
 
 	movementListStr = movementListStr .. "movements:\n"
@@ -240,10 +262,10 @@ function hume2AccelerometerMonitor( event )
 		end
 	end
 
-	for index, movementName in ipairs(completedMovements) do
-		local reverseIndex = table.getn(completedMovements) - index + 1
-		movementListStr = movementListStr .. reverseIndex .. ":" .. completedMovements[reverseIndex] .. "\n"
-	end
+	-- for index, movementName in ipairs(completedMovements) do
+	-- 	local reverseIndex = table.getn(completedMovements) - index + 1
+	-- 	movementListStr = movementListStr .. reverseIndex .. ":" .. completedMovements[reverseIndex] .. "\n"
+	-- end
 
 
 	if ui then
@@ -437,7 +459,7 @@ function scene:show( event )
 			height 	= 50
 			})
 
-		ui.movements = ui.movements or display.newText( { parent=group, text="", x=centerX, y=centerY, width=centerX, height=centerY, font='Lato', fontSize=12, align='left' } )
+		ui.movements = ui.movements or display.newText( { parent=group, text="", x=centerX, y=centerY, width=centerX, font='Lato', fontSize=12, align='left' } )
 
 
 
