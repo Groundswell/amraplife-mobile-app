@@ -7,45 +7,49 @@ local DATA_POINT_NUMERIC_ATTRIBUTES = { 'time_delta','acceleration_xaxis','accel
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
--- @todo standUp (from laydown)
 -- @todo jump (from standing)
--- @todo burpee
--- @todo box jump
--- @todo lunge
+-- @todo down dog
+-- @todo up dog
 -- @todo l-sit
+-- @todo box jump
+-- @todo standUp (from laydown)
+-- @todo burpee
+-- @todo pike push up
+-- @todo lunge
 -- @todo russian twist
--- @todo wall sit
 -- @todo hollow rock
 -- @todo superman
 -- @todo toe touch
--- @todo down dog push up / pike push up
+
+-- @todo wall sit
 
 -- @todo pull up, strict
 -- @todo pull up, kipping
 -- @todo muscle up
 
 local movements = {
-	airSquat={
+	airSquat={ -- @todo needs work
 		name='Air Squat',
 		paths={
 			{ -- path 1 start
 				vectors={
 					{ -- vector 1 start
 						transition={
-							instance_acceleration_xaxis_abs={ 0, 0.2 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_xaxis_abs={ 0, 0.3 },
+							instance_acceleration_yaxis={ -1.05, -0.92 },
 							instance_acceleration_zaxis_abs={ 0, 0.2 },
 						},
 						destination={
-							instance_acceleration_xaxis_abs={ 0, 0.2 },
-							instance_acceleration_yaxis={ -1.05, -0.95 },
+							instance_acceleration_xaxis_abs={ 0, 0.3 },
+							instance_acceleration_yaxis={ -1.05, -0.92 },
 							instance_acceleration_zaxis_abs={ 0, 0.2 },
 							vector_time_delta={ 0.1, nil },
 						},
 					}, -- vector 1 end
 					{ -- vector 2 start - squat
 						transition={
-							--instance_acceleration_xaxis={ 0.05, 0.8 },
+							instance_acceleration_xaxis={ 0, 0.8 },
+							vector_acceleration_xaxis_delta={ 0.0, 1.0 },
 							vector_time_delta={ 0.0, 3.0 },
 						},
 						destination={ -- bottom squat
@@ -59,6 +63,28 @@ local movements = {
 			}, -- path 1 end
 		}, -- paths end
 	}, -- movement end: Air Squat
+	downDog={
+		name='Down Dog',
+		paths={
+			{ -- path 1 start
+				vectors={
+					{ -- vector 1 start
+						transition={
+							instance_acceleration_xaxis={ 0.65, 0.95 },
+							instance_acceleration_yaxis={ 0.45, 0.75 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+						},
+						destination={
+							instance_acceleration_xaxis={ 0.65, 0.95 },
+							instance_acceleration_yaxis={ 0.45, 0.75 },
+							instance_acceleration_zaxis_abs={ 0, 0.35 },
+							vector_time_delta={ 0.2, nil }, -- complete after holding for at least 1 second
+						},
+					}, -- vector 1 end - down dog static position
+				}, -- vectors end
+			}, -- path 1 end
+		}, -- paths end
+	}, -- movement end: Down Dog
 	jump={
 		name='Jump', -- @todo
 		paths={
@@ -125,12 +151,12 @@ local movements = {
 					{ -- vector 1 start
 						transition={
 							instance_acceleration_xaxis={ 0.85, 0.98 },
-							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_yaxis={ -0.4, -0.15 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 						},
 						destination={
 							instance_acceleration_xaxis={ 0.85, 0.98 },
-							instance_acceleration_yaxis_abs={ 0.1, 0.45 },
+							instance_acceleration_yaxis={ -0.4, -0.15 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
 							vector_time_delta={ 0.2, nil }, -- complete after holding for at least 1 second
 						},
@@ -356,14 +382,21 @@ end
 local function evaluateCriteria( value, criteria )
 	local match = true
 
-	if not( criteria[1] == nil ) then
-		match = match and (value >= criteria[1])
-	end
+	if type( criteria ) == 'table' then
 
-	if table.getn(criteria) == 3 and not( criteria[3] == nil ) then
-		match = match and (value <= criteria[3])
-	elseif table.getn(criteria) == 2 and not( criteria[2] == nil ) then
-		match = match and (value <= criteria[2])
+		if not( criteria[1] == nil ) then
+			match = match and (value >= criteria[1])
+		end
+
+		if table.getn(criteria) == 3 and not( criteria[3] == nil ) then
+			match = match and (value <= criteria[3])
+		elseif table.getn(criteria) == 2 and not( criteria[2] == nil ) then
+			match = match and (value <= criteria[2])
+		end
+	else
+
+		match = (value == criteria)
+
 	end
 
 	return match
