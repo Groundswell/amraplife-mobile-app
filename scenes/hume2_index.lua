@@ -247,9 +247,11 @@ function hume2AccelerometerMonitor( event )
 		movementListStr = movementListStr .. movement_key .. " | "
 		if activeMovements[movement_key] then
 			local movementStatus = activeMovements[movement_key]['status']
+			local movementId = activeMovements[movement_key]['id']
 			movementListStr = movementListStr .. movementStatus .. " | "
 
-			table.insert( dataPoint.tags, movement_key .. "-" .. movementStatus )
+			table.insert( dataPoint.tags, movement_key .. "-status-" .. movementStatus )
+			table.insert( dataPoint.tags, movement_key .. "-id-" .. movementId )
 
 			for pathStateKey, pathState in pairs(activeMovements[movement_key].pathStates) do
 				movementListStr = movementListStr .. pathState.vectorIndex .. " | "

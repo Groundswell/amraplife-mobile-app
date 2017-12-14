@@ -348,6 +348,7 @@ local movements = {
 }
 
 
+local activeMovementId = 1
 
 -- Utility Functions
 --------------------------------------------------------------------------------
@@ -508,12 +509,15 @@ local function newActiveMovement( dataPoint, movement )
 	local movementData = {}
 	incrementDataTable( dataPoint, movementData )
 
+	local id = ( activeMovementId = activeMovementId + 1 )
+
 	local activeMovement = {
 		pathStates={},
 		movement=movement,
 		complete=false,
 		status='started',
-		data=movementData
+		data=movementData,
+		id=id,
 	}
 
 	local activePaths = findMatchingMovementPaths( dataPoint, movement )
