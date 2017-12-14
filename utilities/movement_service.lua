@@ -48,15 +48,16 @@ local movements = {
 					}, -- vector 1 end
 					{ -- vector 2 start - squat
 						transition={
-							instance_acceleration_xaxis={ 0, 0.8 },
-							vector_acceleration_xaxis_delta={ 0.0, 1.0 },
 							vector_time_delta={ 0.0, 3.0 },
 						},
 						destination={ -- bottom squat
+							-- instance_acceleration_yaxis_corner=true, -- when stopped or reverseted negative accelleration
+							-- vector_acceleration_yaxis_delta={ nil, -0.07 },
+
 							instance_acceleration_xaxis={ 0.6, 0.8 },
-							instance_acceleration_yaxis={ -0.7, -0.4 },
+							instance_acceleration_yaxis={ -0.7, -0.5 },
 							instance_acceleration_zaxis_abs={ 0, 0.35 },
-							vector_time_delta={ 0.0, nil },
+							vector_time_delta={ 0.3, 3.0 },
 						},
 					}, -- vector 2 end - squat
 				}, -- vectors end
@@ -509,7 +510,8 @@ local function newActiveMovement( dataPoint, movement )
 	local movementData = {}
 	incrementDataTable( dataPoint, movementData )
 
-	local id = ( activeMovementId = activeMovementId + 1 )
+	local id = activeMovementId
+	activeMovementId = activeMovementId + 1
 
 	local activeMovement = {
 		pathStates={},
