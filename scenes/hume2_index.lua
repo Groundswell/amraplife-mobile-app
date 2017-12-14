@@ -208,9 +208,9 @@ function hume2AccelerometerMonitor( event )
 	-- dataPoint['acceleration_xaxis_velocity']	= 0.0
 	-- dataPoint['acceleration_yaxis_velocity']	= 0.0
 	-- dataPoint['acceleration_zaxis_velocity']	= 0.0
-	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( dataPoint['acceleration_xaxis_nr_delta_sum'] * timeDelta )
-	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( dataPoint['acceleration_yaxis_nr_delta_sum'] * timeDelta )
-	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( dataPoint['acceleration_zaxis_nr_delta_sum'] * timeDelta )
+	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( dataPoint['acceleration_xaxis_nr_delta'] * timeDelta )
+	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( dataPoint['acceleration_yaxis_nr_delta'] * timeDelta )
+	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( dataPoint['acceleration_zaxis_nr_delta'] * timeDelta )
 	-- dataPoint['acceleration_xaxis_velocity']	= lastDataPoint['acceleration_xaxis_velocity'] + ( ( dataPoint['acceleration_xaxis_delta_sum'] + lastDataPoint['acceleration_xaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
 	-- dataPoint['acceleration_yaxis_velocity']	= lastDataPoint['acceleration_yaxis_velocity'] + ( ( dataPoint['acceleration_yaxis_delta_sum'] + lastDataPoint['acceleration_yaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
 	-- dataPoint['acceleration_zaxis_velocity']	= lastDataPoint['acceleration_zaxis_velocity'] + ( ( dataPoint['acceleration_zaxis_delta_sum'] + lastDataPoint['acceleration_zaxis_delta_sum'] ) / 2.0 * GRAVITY_METERS_PER_SECOND * timeDelta )
@@ -250,11 +250,15 @@ function hume2AccelerometerMonitor( event )
 			local movementId = activeMovements[movement_key]['id']
 			movementListStr = movementListStr .. movementStatus .. " | "
 
-			table.insert( dataPoint.tags, movement_key .. "-status-" .. movementStatus )
-			table.insert( dataPoint.tags, movement_key .. "-id-" .. movementId )
+			table.insert( dataPoint.tags, 'suggestion-' .. movementStatus )
+			table.insert( dataPoint.tags, 'suggestion-' .. movement_key .. "-status-" .. movementStatus )
+			table.insert( dataPoint.tags, 'suggestion-' .. movement_key .. "-id-" .. movementId )
+			table.insert( dataPoint.tags, 'suggestion-' .. movement_key )
 
 			for pathStateKey, pathState in pairs(activeMovements[movement_key].pathStates) do
 				movementListStr = movementListStr .. pathState.vectorIndex .. " | "
+				table.insert( dataPoint.tags, 'suggestion-' .. movement_key .. "-path-" .. pathStateKey )
+				table.insert( dataPoint.tags, 'suggestion-' .. movement_key .. "-path-" .. pathStateKey .. '-' .. pathState.vectorIndex )
 			end
 
 			movementListStr = movementListStr .. "\n"
@@ -264,19 +268,13 @@ function hume2AccelerometerMonitor( event )
 		end
 	end
 
-	-- for index, movementName in ipairs(completedMovements) do
-	-- 	local reverseIndex = table.getn(completedMovements) - index + 1
-	-- 	movementListStr = movementListStr .. reverseIndex .. ":" .. completedMovements[reverseIndex] .. "\n"
-	-- end
-
-
 	if ui then
 		ui.movements.text = movementListStr
 	end
 
 	lastDataPoint = dataPoint
 
-	-- table.insert(dataPointCache, dataPoint) -- uncomment to send data to server
+	table.insert(dataPointCache, dataPoint) -- uncomment to send data to server
 
 	if table.getn(dataPointCache) >= MAX_DATA_POINT_CACHE_SIZE then
 
@@ -461,7 +459,7 @@ function scene:show( event )
 			height 	= 50
 			})
 
-		ui.movements = ui.movements or display.newText( { parent=group, text="", x=centerX, y=centerY, width=centerX, font='Lato', fontSize=12, align='left' } )
+		ui.movements = ui.movements or display.newText( { parent=group, text="", x=centerX, y=centerY, width=display.contentWidth-10, font='Lato', fontSize=12, align='left' } )
 
 
 
